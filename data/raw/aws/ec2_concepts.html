@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>What is Amazon EC2? - Amazon Elastic Compute Cloud</title><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="assets_root" content="/assets" /><meta name="target_state" content="concepts" /><meta name="default_state" content="concepts" /><link rel="icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="shortcut icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="canonical" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html" /><link rel="alternate" type="text/markdown" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.md" title="Markdown version" /><meta name="description" content="Use Amazon EC2 for scalable computing capacity in the AWS Cloud so you can develop and deploy applications without hardware constraints." /><meta name="deployment_region" content="IAD" /><meta name="product" content="Amazon Elastic Compute Cloud" /><meta name="guide" content="User Guide" /><meta name="abstract" content="Use Amazon EC2 to configure, launch, and manage virtual servers in the AWS cloud." /><meta name="guide-locale" content="en_us" /><meta name="tocs" content="toc-contents.json" /><link rel="canonical" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html" /><link rel="alternate" href="https://docs.aws.amazon.com/id_id/AWSEC2/latest/UserGuide/concepts.html" hreflang="id-id" /><link rel="alternate" href="https://docs.aws.amazon.com/id_id/AWSEC2/latest/UserGuide/concepts.html" hreflang="id" /><link rel="alternate" href="https://docs.aws.amazon.com/de_de/AWSEC2/latest/UserGuide/concepts.html" hreflang="de-de" /><link rel="alternate" href="https://docs.aws.amazon.com/de_de/AWSEC2/latest/UserGuide/concepts.html" hreflang="de" /><link rel="alternate" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html" hreflang="en-us" /><link rel="alternate" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html" hreflang="en" /><link rel="alternate" href="https://docs.aws.amazon.com/es_es/AWSEC2/latest/UserGuide/concepts.html" hreflang="es-es" /><link rel="alternate" href="https://docs.aws.amazon.com/es_es/AWSEC2/latest/UserGuide/concepts.html" hreflang="es" /><link rel="alternate" href="https://docs.aws.amazon.com/fr_fr/AWSEC2/latest/UserGuide/concepts.html" hreflang="fr-fr" /><link rel="alternate" href="https://docs.aws.amazon.com/fr_fr/AWSEC2/latest/UserGuide/concepts.html" hreflang="fr" /><link rel="alternate" href="https://docs.aws.amazon.com/it_it/AWSEC2/latest/UserGuide/concepts.html" hreflang="it-it" /><link rel="alternate" href="https://docs.aws.amazon.com/it_it/AWSEC2/latest/UserGuide/concepts.html" hreflang="it" /><link rel="alternate" href="https://docs.aws.amazon.com/ja_jp/AWSEC2/latest/UserGuide/concepts.html" hreflang="ja-jp" /><link rel="alternate" href="https://docs.aws.amazon.com/ja_jp/AWSEC2/latest/UserGuide/concepts.html" hreflang="ja" /><link rel="alternate" href="https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/concepts.html" hreflang="ko-kr" /><link rel="alternate" href="https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/concepts.html" hreflang="ko" /><link rel="alternate" href="https://docs.aws.amazon.com/pt_br/AWSEC2/latest/UserGuide/concepts.html" hreflang="pt-br" /><link rel="alternate" href="https://docs.aws.amazon.com/pt_br/AWSEC2/latest/UserGuide/concepts.html" hreflang="pt" /><link rel="alternate" href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/concepts.html" hreflang="zh-cn" /><link rel="alternate" href="https://docs.aws.amazon.com/zh_tw/AWSEC2/latest/UserGuide/concepts.html" hreflang="zh-tw" /><link rel="alternate" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html" hreflang="x-default" /><meta name="feedback-item" content="EC2" /><meta name="this_doc_product" content="Amazon Elastic Compute Cloud" /><meta name="this_doc_guide" content="User Guide" /><head xmlns="http://www.w3.org/1999/xhtml"> <script defer="" src="/assets/r/awsdocs-doc-page.2.0.0.js"></script><link href="/assets/r/awsdocs-doc-page.2.0.0.css" rel="stylesheet"/></head>
+<script defer="" id="awsc-panorama-bundle" type="text/javascript" src="https://prod.pa.cdn.uis.awsstatic.com/panorama-nav-init.js" data-config="{'appEntity':'aws-documentation','region':'us-east-1','service':'ec2'}"></script><meta id="panorama-serviceSubSection" value="User Guide" /><meta id="panorama-serviceConsolePage" value="What is Amazon EC2?" /></head><body class="awsdocs awsui"><div class="awsdocs-container"><p><a href="concepts.md">View a markdown version of this page</a></p><awsdocs-header></awsdocs-header><awsui-app-layout id="app-layout" class="awsui-util-no-gutters" ng-controller="ContentController as $ctrl" header-selector="awsdocs-header" navigation-hide="false" navigation-width="$ctrl.navWidth" navigation-open="$ctrl.navOpen" navigation-change="$ctrl.onNavChange($event)" tools-hide="$ctrl.hideTools" tools-width="$ctrl.toolsWidth" tools-open="$ctrl.toolsOpen" tools-change="$ctrl.onToolsChange($event)"><div id="guide-toc" dom-region="navigation"><awsdocs-toc></awsdocs-toc></div><div id="main-column" dom-region="content" tabindex="-1"><awsdocs-view class="awsdocs-view"><div id="awsdocs-content"><head><title>What is Amazon EC2? - Amazon Elastic Compute Cloud</title><meta name="pdf" content="/pdfs/AWSEC2/latest/UserGuide/ec2-ug.pdf#concepts" /><meta name="rss" content="amazon-ec2-release-notes.rss" /><meta name="forums" content="https://repost.aws/tags/TAO-wqN9fYRoyrpdULLa5y7g" /><meta name="feedback" content="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=EC2&amp;topic_url=https://docs.aws.amazon.com/en_us/AWSEC2/latest/UserGuide/concepts.html" /><meta name="feedback-yes" content="feedbackyes.html?topic_url=https://docs.aws.amazon.com/en_us/AWSEC2/latest/UserGuide/concepts.html" /><meta name="feedback-no" content="feedbackno.html?topic_url=https://docs.aws.amazon.com/en_us/AWSEC2/latest/UserGuide/concepts.html" /><meta name="keywords" content="EC2,Amazon EC2,EC2 instance,EC2 Linux instance,EC2 Windows instance,instance,VM,virtual machine,EC2 overview" /><script type="application/ld+json">
+{
+    "@context" : "https://schema.org",
+    "@type" : "BreadcrumbList",
+    "itemListElement" : [
+      {
+        "@type" : "ListItem",
+        "position" : 1,
+        "name" : "AWS",
+        "item" : "https://aws.amazon.com"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 2,
+        "name" : "Amazon EC2",
+        "item" : "https://docs.aws.amazon.com/ec2/index.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 3,
+        "name" : "User Guide",
+        "item" : "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 4,
+        "name" : "What is Amazon EC2?",
+        "item" : "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html"
+      }
+    ]
+}
+</script></head><body><div id="main"><div style="display: none"><a href="/pdfs/AWSEC2/latest/UserGuide/ec2-ug.pdf#concepts" target="_blank" rel="noopener noreferrer" title="Open PDF"></a></div><div id="breadcrumbs" class="breadcrumb"><a href="/index.html">Documentation</a><a href="/ec2/index.html">Amazon EC2</a><a href="concepts.html">User Guide</a></div><div id="page-toc-src"><a href="#ec2-features">Features</a><a href="#related-services">Related services</a><a href="#access-ec2">Access EC2</a><a href="#ec2-pricing">Pricing</a><a href="#more-resources">Resources</a></div><awsdocs-doc-page-banner></awsdocs-doc-page-banner><div id="main-content" class="awsui-util-container"><div id="main-col-body"><awsdocs-language-banner data-service="$ctrl.pageService"></awsdocs-language-banner><h1 class="topictitle" id="concepts">What is Amazon EC2?</h1><div class="awsdocs-page-header-container"><awsdocs-page-header></awsdocs-page-header><awsdocs-filter-selector id="awsdocs-filter-selector"></awsdocs-filter-selector></div><p>Amazon Elastic Compute Cloud (Amazon EC2) provides on-demand, scalable computing capacity in the Amazon Web
+		Services (AWS) Cloud. Using Amazon EC2 reduces hardware costs so you can develop and deploy
+		applications faster. You can use Amazon EC2 to launch as many or as few virtual servers as you
+		need, configure security and networking, and manage storage. You can add capacity (scale up)
+		to handle compute-heavy tasks, such as monthly or yearly processes, or spikes in website
+		traffic. When usage decreases, you can reduce capacity (scale down) again.</p><p>An EC2 instance is a virtual server in the AWS Cloud. When you launch an EC2 instance,
+    	the instance type that you specify determines the hardware available to your instance. 
+    	Each instance type offers a different balance of compute, memory, network, and storage 
+    	resources. For more information, see the <a href="https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-types.html">Amazon EC2 Instance Types Guide</a>.</p><div class="mediaobject">
+		 
+			<img src="/images/AWSEC2/latest/UserGuide/images/instance-types.png" class="aws-docs-img-whiteBg aws-docs-img-padding" alt="Each EC2 instance type provides a balance of compute, memory, network, and storage resources." style="max-width:100%" />
+		 
+		 
+	</div>
+		<h2 id="ec2-features">Features of Amazon EC2</h2>
+
+		<p>Amazon EC2 provides the following high-level features:</p>
+
+		<div class="variablelist">
+			 
+			 
+			 
+			 
+			 
+			 
+			 
+		<dl>
+				<dt><b><span class="term">Instances</span></b></dt>
+				<dd>
+					<p>Virtual servers.</p>
+				</dd>
+			
+				<dt><b><span class="term">Amazon Machine Images (AMIs)</span></b></dt>
+				<dd>
+					<p>Preconfigured templates for your instances that package the components you
+						need for your server (including the operating system and additional
+						software).</p>
+				</dd>
+			
+				<dt><b><span class="term">Instance types</span></b></dt>
+				<dd>
+					<p>Various configurations of CPU, memory, storage, networking capacity, and
+						graphics hardware for your instances.</p>
+				</dd>
+			
+				<dt><b><span class="term">Amazon EBS volumes</span></b></dt>
+				<dd>
+					<p>Persistent storage volumes for your data using Amazon Elastic Block Store (Amazon EBS).</p>
+				</dd>
+			
+				<dt><b><span class="term">Instance store volumes</span></b></dt>
+				<dd>
+					<p>Storage volumes for temporary data that is deleted when you stop,
+						hibernate, or terminate your instance.</p>
+				</dd>
+			
+				<dt><b><span class="term">Key pairs</span></b></dt>
+				<dd>
+					<p>Secure login information for your instances. AWS stores the public key
+						and you store the private key in a secure place.</p>
+				</dd>
+			
+				<dt><b><span class="term">Security groups</span></b></dt>
+				<dd>
+					<p>A virtual firewall that allows you to specify the protocols, ports, and
+						source IP ranges that can reach your instances, and the destination IP
+						ranges to which your instances can connect. </p>
+				</dd>
+			</dl></div>
+
+        
+<p>Amazon EC2 supports the processing, storage, and transmission 
+of credit card data by a merchant or service provider, and has been 
+validated as being compliant with Payment Card Industry (PCI) Data Security Standard (DSS). 
+For more information about PCI DSS, including how to request a copy of the AWS PCI Compliance Package, 
+see <a href="https://aws.amazon.com/compliance/pci-dss-level-1-faqs/" rel="noopener noreferrer" target="_blank"><span>PCI DSS Level 1</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.
+</p>
+
+	 
+		<h2 id="related-services">Related services</h2>
+
+		<div class="variablelist">
+			<h6>Services to use with Amazon EC2</h6>
+			<p>You can use other AWS services with the instances that you deploy using Amazon EC2.</p>
+        	 
+			 
+			 
+			 
+			 
+			 
+			 
+			 
+        <dl>
+        		<dt><span class="term"><a href="https://docs.aws.amazon.com/autoscaling/">Amazon EC2 Auto Scaling</a></span></dt>
+        		<dd>
+        			<p>Helps ensure you have the correct number of Amazon EC2 instances available to
+        				handle the load for your application.</p>
+        		</dd>
+        	 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/aws-backup/">AWS Backup</a></span></dt>
+				<dd>
+					<p>Automate backing up your Amazon EC2 instances and the Amazon EBS volumes attached to
+						them.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/cloudwatch/">Amazon CloudWatch</a></span></dt>
+				<dd>
+					<p>Monitor your instances and Amazon EBS volumes.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/elasticloadbalancing/">Elastic Load Balancing</a></span></dt>
+				<dd>
+					<p>Automatically distribute incoming application traffic across multiple
+						instances.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/guardduty/">Amazon GuardDuty</a></span></dt>
+				<dd>
+					<p>Detect potentially unauthorized or malicious use of your EC2 instances.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/imagebuilder/">EC2 Image Builder</a></span></dt>
+				<dd>
+					<p>Automate the creation, management, and deployment of customized, secure, and
+						up-to-date server images.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/launchwizard/">AWS Launch Wizard</a></span></dt>
+				<dd>
+					<p>Size, configure, and deploy AWS resources for third-party applications
+						without having to manually identify and provision individual AWS
+						resources.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/systems-manager/">AWS Systems Manager</a></span></dt>
+				<dd>
+					<p>Perform operations at scale on EC2 instances with this secure end-to-end
+						management solution.</p>
+				</dd>
+			</dl></div>
+		
+		<div class="variablelist">
+			<h6>Additional compute services</h6>
+			<p>You can launch instances using another AWS compute service instead of using Amazon EC2.</p>
+			 
+			 
+			 
+		<dl>
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/lightsail/">Amazon Lightsail</a></span></dt>
+				<dd>
+					<p>Build websites or web applications using Amazon Lightsail, a cloud platform
+						that provides the resources that you need to deploy your project quickly, for
+						a low, predictable monthly price. To compare Amazon EC2 and Lightsail, see 
+						<a href="https://docs.aws.amazon.com/decision-guides/latest/lightsail-or-ec2/lightsail-or-ec2.html">Amazon Lightsail or Amazon EC2</a>.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/ecs/">Amazon Elastic Container Service (Amazon ECS)</a></span></dt>
+				<dd>
+					<p>Deploy, manage, and scale containerized applications on a cluster of EC2
+						instances. For more information, see <a href="https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html">Choosing an AWS container service</a>.</p>
+				</dd>
+			 
+				<dt><span class="term"><a href="https://docs.aws.amazon.com/eks/">Amazon Elastic Kubernetes Service (Amazon EKS)</a></span></dt>
+				<dd>
+					<p>Run your Kubernetes applications on AWS.  For more information, see 
+						<a href="https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html">Choosing an AWS container service</a>.</p>
+				</dd>
+			</dl></div>
+	 
+		<h2 id="access-ec2">Access Amazon EC2</h2>
+		<p>You can create and manage your Amazon EC2 instances using the following interfaces:</p>
+
+		<div class="variablelist">
+			 
+			 
+			 
+			 
+			 
+			 
+		<dl>
+				<dt><b><span class="term">Amazon EC2 console</span></b></dt>
+				<dd>
+					<p>A simple web interface to create and manage Amazon EC2 instances and resources.
+						If you've signed up for an AWS account, you can access the Amazon EC2 console
+						by signing into the AWS Management Console and selecting <b>EC2</b> from
+						the console home page.</p>
+				</dd>
+			
+				<dt><b><span class="term">AWS Command Line Interface</span></b></dt>
+				<dd>
+					<p>Enables you to interact with AWS services using commands in your command-line shell. It
+						is supported on Windows, Mac, and Linux. For more information about the
+						AWS CLI , see <a href="https://docs.aws.amazon.com/cli/latest/userguide/">AWS Command Line Interface User Guide</a>. You can find the Amazon EC2 commands in the <a href="https://docs.aws.amazon.com/cli/latest/reference/ec2/index.html">AWS CLI Command Reference</a>.</p>
+				</dd>
+			
+				<dt><b><span class="term">CloudFormation</span></b></dt>
+				<dd>
+					<p>Amazon EC2 supports creating resources using CloudFormation. You create a template, in JSON or YAML
+						format, that describes your AWS resources, and CloudFormation provisions and
+						configures those resources for you. You can reuse your CloudFormation
+						templates to provision the same resources multiple times, whether in the
+						same Region and account or in multiple Regions and accounts. For more
+						information about supported resource types and properties for Amazon EC2, see
+							<a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_EC2.html">EC2 resource type
+							reference</a> in the <em>AWS CloudFormation User Guide</em>.</p>
+				</dd>
+			
+				<dt><b><span class="term">AWS SDKs</span></b></dt>
+				<dd>
+					<p>If you prefer to build applications using language-specific APIs instead
+						of submitting a request over HTTP or HTTPS, AWS provides libraries, sample
+						code, tutorials, and other resources for software developers. These
+						libraries provide basic functions that automate tasks such as
+						cryptographically signing your requests, retrying requests, and handling
+						error responses, making it easier for you to get started. For more
+						information, see 
+						<span><a href="https://aws.amazon.com/developer/tools/" rel="noopener noreferrer" target="_blank"><span>Tools to Build
+								on AWS</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></span>.</p>
+				</dd>
+			
+				<dt><b><span class="term">AWS Tools for PowerShell</span></b></dt>
+				<dd>
+					<p>A set of PowerShell modules that are built on the functionality exposed by
+						the SDK for .NET. The Tools for PowerShell enable you to script operations on your AWS
+						resources from the PowerShell command line. To get started, see the
+							<a href="https://docs.aws.amazon.com/powershell/latest/userguide/">AWS Tools for PowerShell User Guide</a>. You can find the cmdlets for Amazon EC2, in the <a href="https://docs.aws.amazon.com/powershell/latest/reference/Index.html">AWS Tools for PowerShell Cmdlet Reference</a>.</p>
+				</dd>
+			
+				<dt><b><span class="term">Query API</span></b></dt>
+				<dd>
+					<p>Amazon EC2 provides a Query API. These requests are HTTP or HTTPS requests that
+						use the HTTP verbs GET or POST and a Query parameter named
+						<code class="code">Action</code>. For more information about the API actions for
+						Amazon EC2, see <a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_Operations.html">Actions</a> in the
+						<em>Amazon EC2 API Reference</em>.</p>
+				</dd>
+			</dl></div>
+	 
+		<h2 id="ec2-pricing">Pricing for Amazon EC2</h2>
+		<p>Amazon EC2 provides the following pricing options:</p>
+		<div class="variablelist">
+			 
+			 
+			 
+			 
+			 
+			 
+			 
+			 
+		<dl>
+				<dt><b><span class="term">Free Tier</span></b></dt>
+				<dd>
+					<p>You can get started with Amazon EC2 for free. To explore the Free Tier options,
+						see <a href="https://aws.amazon.com/free/" rel="noopener noreferrer" target="_blank"><span>AWS Free Tier</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</p>
+				</dd>
+			
+				<dt><b><span class="term">On-Demand Instances</span></b></dt>
+				<dd>
+					<p>Pay for the instances that you use by the second, with a minimum of 60
+						seconds, with no long-term commitments or upfront payments.</p>
+				</dd>
+			
+				<dt><b><span class="term">Savings Plans</span></b></dt>
+				<dd>
+					<p>You can reduce your Amazon EC2 costs by making a commitment to a consistent
+						amount of usage, in USD per hour, for a term of 1 or 3 years.</p>
+				</dd>
+			
+				<dt><b><span class="term">Reserved Instances</span></b></dt>
+				<dd>
+					<p>You can reduce your Amazon EC2 costs by making a commitment to a specific
+						instance configuration, including instance type and Region, for a term of 1
+						or 3 years.</p>
+				</dd>
+			
+				<dt><b><span class="term">Spot Instances</span></b></dt>
+				<dd>
+					<p>Request unused EC2 instances, which can reduce your Amazon EC2 costs
+						significantly.</p>
+				</dd>
+			
+				<dt><b><span class="term">Dedicated Hosts</span></b></dt>
+				<dd>
+					<p>Reduce costs by using a physical EC2 server that is fully dedicated for
+						your use, either On-Demand or as part of a Savings Plan. You can use your
+						existing server-bound software licenses and get help meeting compliance
+						requirements. </p>
+				</dd>
+			
+				<dt><b><span class="term">On-Demand Capacity Reservations</span></b></dt>
+				<dd>
+					<p>Reserve compute capacity for your EC2 instances in a specific Availability
+						Zone for any duration of time.</p>
+				</dd>
+			
+				<dt><b><span class="term">Per-second billing</span></b></dt>
+				<dd>
+					<p>Removes the cost of unused minutes and seconds from your bill.</p>
+				</dd>
+			</dl></div>
+		<p>For a complete list of charges and prices for Amazon EC2 and more information about the purchase
+			models, see <a href="https://aws.amazon.com/ec2/pricing/" rel="noopener noreferrer" target="_blank"><span>Amazon EC2 pricing</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</p>
+		 
+			<h3 id="ec2-pricing-additional">Estimates, billing, and cost optimization</h3>
+			<p>To create estimates for your AWS use cases, use the <a href="https://calculator.aws/#/" rel="noopener noreferrer" target="_blank"><span>AWS Pricing Calculator</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</p>
+			<p>To estimate the cost of transforming <b>Microsoft
+					workloads</b> to a modern architecture that uses open source and
+				cloud-native services deployed on AWS, use the <a href="https://modernization.calculator.aws/microsoft/workload" rel="noopener noreferrer" target="_blank"><span>AWS
+					Modernization Calculator for Microsoft Workloads</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</p>
+			<p>To see your bill, go to the <b>Billing and Cost Management
+					Dashboard</b> in the <a href="https://console.aws.amazon.com/billing/" rel="noopener noreferrer" target="_blank"><span>AWS Billing and Cost Management
+					console</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>. Your bill contains links to usage reports that provide details
+				about your bill. To learn more about AWS account billing, see <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/">AWS Billing and Cost Management User
+				Guide</a>.</p>
+			<p>If you have questions concerning AWS billing, accounts, and events, <a href="https://aws.amazon.com/contact-us/" rel="noopener noreferrer" target="_blank"><span>contact AWS Support</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</p>
+			<p><span>To calculate the cost of a sample provisioned
+					environment, see <a href="https://aws.amazon.com/economics/" rel="noopener noreferrer" target="_blank"><span>Cloud Economics
+						Center</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</span> When calculating the cost of a provisioned
+				environment, remember to include incidental costs such as snapshot storage for EBS
+				volumes. </p>
+			<p>You can optimize the cost, security, and performance of your AWS environment
+				using <a href="https://aws.amazon.com/premiumsupport/technology/trusted-advisor/" rel="noopener noreferrer" target="_blank"><span>AWS Trusted Advisor</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</p>
+			<p>You can use AWS Cost Explorer to analyze the cost and usage of your EC2 instances. You can view 
+				data up to the last 13 months, and forecast how much you are likely to spend for the next 
+				12 months. For more information, see
+				<a href="https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html">Analyzing your costs and usage with
+					AWS Cost Explorer</a> in the <em>AWS Cost Management User Guide</em>.</p>
+		 
+	 
+		<h2 id="more-resources">Resources</h2>
+		<div class="itemizedlist">
+			 
+			 
+			 
+			 
+			 
+			 
+			 
+		<ul class="itemizedlist"><li class="listitem"><p><a href="https://aws.amazon.com/ec2/features/" rel="noopener noreferrer" target="_blank"><span>Amazon EC2 features</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></p></li><li class="listitem"><p><a href="https://repost.aws/" rel="noopener noreferrer" target="_blank"><span>AWS re:Post</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></p></li><li class="listitem"><p><a href="https://aws.amazon.com/training/digital/" rel="noopener noreferrer" target="_blank"><span>AWS Skill Builder</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></p></li><li class="listitem"><p><a href="https://aws.amazon.com/premiumsupport/" rel="noopener noreferrer" target="_blank"><span>AWS Support</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></p></li><li class="listitem"><p><a href="https://aws.amazon.com/getting-started/hands-on/" rel="noopener noreferrer" target="_blank"><span>Hands-on Tutorials</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></p></li><li class="listitem"><p><a href="https://aws.amazon.com/websites/" rel="noopener noreferrer" target="_blank"><span>Web Hosting</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></p></li><li class="listitem"><p><a href="https://aws.amazon.com/windows/" rel="noopener noreferrer" target="_blank"><span>Windows on AWS</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a></p></li></ul></div>
+	<awsdocs-copyright class="copyright-print"></awsdocs-copyright><awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}"></awsdocs-thumb-feedback></div><noscript><div><div><div><div id="js_error_message"><p><img src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png" alt="Warning" /> <strong>Javascript is disabled or is unavailable in your browser.</strong></p><p>To use the Amazon Web Services Documentation, Javascript must be enabled. Please refer to your browser's Help pages for instructions.</p></div></div></div></div></noscript><div id="main-col-footer" class="awsui-util-font-size-0"><div id="doc-conventions"><a target="_top" href="/general/latest/gr/docconventions.html">Document Conventions</a></div><div class="prev-next"><div id="next" class="next-link" accesskey="n" href="./EC2_GetStarted.html">Get started tutorial</div></div></div><awsdocs-page-utilities></awsdocs-page-utilities></div><div id="quick-feedback-yes" style="display: none;"><div class="title">Did this page help you? - Yes</div><div class="content"><p>Thanks for letting us know we're doing a good job!</p><p>If you've got a moment, please tell us what we did right so we can do more of it.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=EC2&amp;topic_url=https://docs.aws.amazon.com/en_us/AWSEC2/latest/UserGuide/concepts.html"></awsui-button></p></div></div><div id="quick-feedback-no" style="display: none;"><div class="title">Did this page help you? - No</div><div class="content"><p>Thanks for letting us know this page needs work. We're sorry we let you down.</p><p>If you've got a moment, please tell us how we can make the documentation better.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=EC2&amp;topic_url=https://docs.aws.amazon.com/en_us/AWSEC2/latest/UserGuide/concepts.html"></awsui-button></p></div></div></div></body></div></awsdocs-view><div class="page-loading-indicator" id="page-loading-indicator"><awsui-spinner size="large"></awsui-spinner></div></div><div id="tools-panel" dom-region="tools"><awsdocs-tools-panel id="awsdocs-tools-panel"></awsdocs-tools-panel></div></awsui-app-layout><awsdocs-cookie-banner class="doc-cookie-banner"></awsdocs-cookie-banner></div></body></html>

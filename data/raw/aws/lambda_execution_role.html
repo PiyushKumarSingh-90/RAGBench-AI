@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Defining Lambda Event Function permissions with an execution role - AWS Lambda</title><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="assets_root" content="/assets" /><meta name="target_state" content="lambda-intro-execution-role" /><meta name="default_state" content="lambda-intro-execution-role" /><link rel="icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="shortcut icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="canonical" href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html" /><link rel="alternate" type="text/markdown" href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.md" title="Markdown version" /><meta name="description" content="Learn how to manage permissions for your Event Function's execution role." /><meta name="deployment_region" content="IAD" /><meta name="product" content="AWS Lambda" /><meta name="guide" content="Developer Guide" /><meta name="abstract" content="Lambda is a compute service that lets you run code without provisioning or managing servers." /><meta name="guide-locale" content="en_us" /><meta name="tocs" content="toc-contents.json" /><link rel="canonical" href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html" /><link rel="alternate" href="https://docs.aws.amazon.com/id_id/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="id-id" /><link rel="alternate" href="https://docs.aws.amazon.com/id_id/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="id" /><link rel="alternate" href="https://docs.aws.amazon.com/de_de/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="de-de" /><link rel="alternate" href="https://docs.aws.amazon.com/de_de/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="de" /><link rel="alternate" href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="en-us" /><link rel="alternate" href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="en" /><link rel="alternate" href="https://docs.aws.amazon.com/es_es/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="es-es" /><link rel="alternate" href="https://docs.aws.amazon.com/es_es/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="es" /><link rel="alternate" href="https://docs.aws.amazon.com/fr_fr/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="fr-fr" /><link rel="alternate" href="https://docs.aws.amazon.com/fr_fr/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="fr" /><link rel="alternate" href="https://docs.aws.amazon.com/it_it/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="it-it" /><link rel="alternate" href="https://docs.aws.amazon.com/it_it/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="it" /><link rel="alternate" href="https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="ja-jp" /><link rel="alternate" href="https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="ja" /><link rel="alternate" href="https://docs.aws.amazon.com/ko_kr/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="ko-kr" /><link rel="alternate" href="https://docs.aws.amazon.com/ko_kr/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="ko" /><link rel="alternate" href="https://docs.aws.amazon.com/pt_br/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="pt-br" /><link rel="alternate" href="https://docs.aws.amazon.com/pt_br/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="pt" /><link rel="alternate" href="https://docs.aws.amazon.com/zh_cn/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="zh-cn" /><link rel="alternate" href="https://docs.aws.amazon.com/zh_tw/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="zh-tw" /><link rel="alternate" href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html" hreflang="x-default" /><meta name="feedback-item" content="Lambda" /><meta name="this_doc_product" content="AWS Lambda" /><meta name="this_doc_guide" content="Developer Guide" /><head xmlns="http://www.w3.org/1999/xhtml"> <script defer="" src="/assets/r/awsdocs-doc-page.2.0.0.js"></script><link href="/assets/r/awsdocs-doc-page.2.0.0.css" rel="stylesheet"/></head>
+<script defer="" id="awsc-panorama-bundle" type="text/javascript" src="https://prod.pa.cdn.uis.awsstatic.com/panorama-nav-init.js" data-config="{'appEntity':'aws-documentation','region':'us-east-1','service':'lambda'}"></script><meta id="panorama-serviceSubSection" value="Developer Guide" /><meta id="panorama-serviceConsolePage" value="Defining Lambda Event Function permissions with an execution role" /></head><body class="awsdocs awsui"><div class="awsdocs-container"><p><a href="lambda-intro-execution-role.md">View a markdown version of this page</a></p><awsdocs-header></awsdocs-header><awsui-app-layout id="app-layout" class="awsui-util-no-gutters" ng-controller="ContentController as $ctrl" header-selector="awsdocs-header" navigation-hide="false" navigation-width="$ctrl.navWidth" navigation-open="$ctrl.navOpen" navigation-change="$ctrl.onNavChange($event)" tools-hide="$ctrl.hideTools" tools-width="$ctrl.toolsWidth" tools-open="$ctrl.toolsOpen" tools-change="$ctrl.onToolsChange($event)"><div id="guide-toc" dom-region="navigation"><awsdocs-toc></awsdocs-toc></div><div id="main-column" dom-region="content" tabindex="-1"><awsdocs-view class="awsdocs-view"><div id="awsdocs-content"><head><title>Defining Lambda Event Function permissions with an execution role - AWS Lambda</title><meta name="pdf" content="/pdfs/lambda/latest/dg/lambda-dg.pdf#lambda-intro-execution-role" /><meta name="rss" content="lambda-updates.rss" /><meta name="forums" content="https://repost.aws/tags/TA5uNafDy2TpGNjidWLMSxDw" /><meta name="feedback" content="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-intro-execution-role.html" /><meta name="feedback-yes" content="feedbackyes.html?topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-intro-execution-role.html" /><meta name="feedback-no" content="feedbackno.html?topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-intro-execution-role.html" /><meta name="keywords" content="Lambda,AWS Lambda,serverless,serverless applications,cloud computing,compute,function,Event Function,High Availability,permissions,grant access to function,policy,add permission,function permissions,allow access to other resources,allow access to bucket,allow access to database,function access permissions" /><script type="application/ld+json">
+{
+    "@context" : "https://schema.org",
+    "@type" : "BreadcrumbList",
+    "itemListElement" : [
+      {
+        "@type" : "ListItem",
+        "position" : 1,
+        "name" : "AWS",
+        "item" : "https://aws.amazon.com"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 2,
+        "name" : "AWS Lambda",
+        "item" : "https://docs.aws.amazon.com/lambda/index.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 3,
+        "name" : "Developer Guide",
+        "item" : "https://docs.aws.amazon.com/lambda/latest/dg"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 4,
+        "name" : "AWS Lambda Event Functions (formerly Lambda functions)",
+        "item" : "https://docs.aws.amazon.com/lambda/latest/dg/lambda-functions-chapter.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 5,
+        "name" : "Managing permissions in AWS Lambda",
+        "item" : "https://docs.aws.amazon.com/lambda/latest/dg/lambda-permissions.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 6,
+        "name" : "Defining Lambda Event Function permissions with an execution role",
+        "item" : "https://docs.aws.amazon.com/lambda/latest/dg/lambda-permissions.html"
+      }
+    ]
+}
+</script></head><body><div id="main"><div style="display: none"><a href="/pdfs/lambda/latest/dg/lambda-dg.pdf#lambda-intro-execution-role" target="_blank" rel="noopener noreferrer" title="Open PDF"></a></div><div id="breadcrumbs" class="breadcrumb"><a href="/index.html">Documentation</a><a href="/lambda/index.html">AWS Lambda</a><a href="welcome.html">Developer Guide</a></div><div id="page-toc-src"><a href="#permissions-executionrole-console">Creating an execution role in the IAM console</a><a href="#permissions-executionrole-api">Creating and managing roles with the AWS CLI</a><a href="#permissions-executionrole-least-privilege">Grant least privilege access to your Lambda execution role</a></div><div id="main-content" class="awsui-util-container"><div id="main-col-body"><awsdocs-language-banner data-service="$ctrl.pageService"></awsdocs-language-banner><h1 class="topictitle" id="lambda-intro-execution-role">Defining Lambda Event Function permissions with an execution role</h1><div class="awsdocs-page-header-container"><awsdocs-page-header></awsdocs-page-header><awsdocs-filter-selector id="awsdocs-filter-selector"></awsdocs-filter-selector></div><p>A Lambda Event Function's execution role is an AWS Identity and Access Management (IAM) role that grants the function permission to access
+    AWS services and resources. For example, you might create an execution role that has permission to send logs to
+    Amazon CloudWatch and upload trace data to AWS X-Ray. This page provides information on how to create, view, and manage a
+    Lambda function's execution role.</p><p>Lambda automatically assumes your execution role when you invoke your function. You should avoid manually
+    calling <code class="code">sts:AssumeRole</code> to assume the execution role in your function code. If your use case requires
+    that the role assumes itself, you must include the role itself as a trusted principal in your role's trust policy.
+    For more information on how to modify a role trust policy, see <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/roles-managingrole-editing-console.html#roles-managingrole_edit-trust-policy">
+    Modifying a role trust policy (console)</a> in the IAM User Guide.</p><p>In order for Lambda to properly assume your execution role, the role's
+    <a href="#permissions-executionrole-api">trust policy</a> must specify the Lambda service principal
+    (<code class="code">lambda.amazonaws.com</code>) as a trusted service.</p><div class="highlights"><h6>Topics</h6><ul><li><p><a href="#permissions-executionrole-console">Creating an execution role in the IAM console</a></p></li><li><p><a href="#permissions-executionrole-api">Creating and managing roles with the AWS CLI</a></p></li><li><p><a href="#permissions-executionrole-least-privilege">Grant least privilege access to your Lambda execution role</a></p></li><li><p><a href="./permissions-executionrole-update.html">Viewing and updating permissions in the execution role</a></p></li><li><p><a href="./permissions-managed-policies.html">Working with AWS managed policies in the execution role</a></p></li><li><p><a href="./permissions-source-function-arn.html">Using source function ARN to control function access behavior</a></p></li></ul></div>
+    <h2 id="permissions-executionrole-console">Creating an execution role in the IAM console</h2>
+    
+    <p>By default, Lambda creates an execution role with minimal permissions when you <a href="./getting-started.html#getting-started-create-function">create a function in the Lambda console</a>. Specifically,
+      this execution role includes the <a href="https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSLambdaBasicExecutionRole.html"><code class="code">AWSLambdaBasicExecutionRole</code> managed policy</a>, which gives your function
+      basic permissions to log events to Amazon CloudWatch Logs. You can select <b>Create default role</b>
+      in the <b>Permissions</b> section.</p>
+    <p>You can choose an existing role by selecting <b>Use another role</b> in the
+      <b>Permissions</b> section. If your Lambda function needs additional permissions to
+      perform tasks such as updating entries in an Amazon DynamoDB database in response to events, you can
+      create a custom execution role with the necessary permissions. To do this, select
+      <b>Use another role</b> in the <b>Permissions</b> section, which
+      opens a drawer where you can customize your permissions.</p>
+    <div class="awsdocs-note"><div class="awsdocs-note-title"><awsui-icon name="status-info" variant="link"></awsui-icon><h6>Note</h6></div><div class="awsdocs-note-text"><p>If role manager is enabled in your account, the Lambda console attaches an execution
+        role for you. To customize permissions, create your
+        function, and then edit the function's permissions to select a different role or customize
+        the attached role. For more
+        information, see <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_role-manager.html">Create roles automatically with role manager</a> in the IAM User Guide.</p></div></div>
+    <div class="procedure"><h6>To configure an execution role from Console</h6><ol><li>
+        <p>Enter a <b>role name</b> in the Role details section.</p>
+      </li><li>
+        <p>In the <b>Policy</b> section, select <b>Use existing policy</b>.</p>
+      </li><li>
+        <p>Select the AWS managed policies that you want to attach to your role.
+          For example, if your function needs to access DynamoDB, select the
+          <b>AWSLambdaDynamoDBExecutionRole</b> managed policy.</p>
+      </li><li>
+        <p>Choose <b>Create role</b>.</p>
+      </li></ol></div>
+    <p>Alternatively, when you <a href="https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html#getting-started-create-function">create a function in the Lambda console</a>, you can attach any execution
+      role that you previously created to the function. If you want to attach a new execution role to
+      an existing function, follow the steps in <a href="./permissions-executionrole-update.html">Updating
+      a function's execution role</a>.</p>
+   
+    <h2 id="permissions-executionrole-api">Creating and managing roles with the AWS CLI</h2>
+    <p>To create an execution role with the AWS Command Line Interface (AWS CLI), use the <b>create-role</b>
+      command. When using this command, you can specify the trust policy inline.
+      A role's trust policy gives the specified principals permission to assume the role. In the
+      following example, you grant the Lambda service principal permission to assume your role. Note that
+      requirements for escaping quotes in the JSON string might vary depending on your shell.</p>
+    <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><!--DEBUG: cli (none)--><code class="nohighlight"><code class="userinput">aws iam create-role \
+  --role-name lambda-ex \
+  --assume-role-policy-document '<span>{</span>"Version": "2012-10-17","Statement": [<span>{</span> "Effect": "Allow", "Principal": <span>{</span>"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]}'</code></code></pre>
+    <p>You can also define the trust policy for the role using a separate JSON file. In the following example,
+      <code>trust-policy.json</code> is a file in the current directory.</p>
+    <div class="example"><h6>Example trust-policy.json</h6><div class="example-contents"><awsdocs-tabs><dl style="display: none">
+    <dt>JSON</dt><dd tab-id="json">
+            <div class="variablelist">
+     
+<dl>
+        <dt><b><span class="term"></span></b></dt>
+        <dd>
+            
+                
+                <pre class="programlisting" data-example-id="7ad7b9901ef9f136239c84d1d5b2894bf940b3db5e841f13fd40fd847586971c"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><!--DEBUG: cli (json)--><code class="json "><code class="userinput"><span>{</span>
+  "Version":"2012-10-17",
+  "Statement": [
+    <span>{</span>
+      "Effect": "Allow",
+      "Principal": <span>{</span>
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}</code>
+</code></pre>
+            
+        </dd>
+    </dl></div>
+        </dd>
+</dl></awsdocs-tabs><pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><!--DEBUG: cli (none)--><code class="nohighlight"><code class="userinput">aws iam create-role \
+  --role-name lambda-ex \
+  --assume-role-policy-document file://trust-policy.json</code></code></pre></div></div>
+    <p>To add permissions to the role, use the <b>attach-policy-to-role</b> command. The following
+      command adds the <code class="code">AWSLambdaBasicExecutionRole</code> managed policy to the <code class="code">lambda-ex</code>
+      execution role.</p>
+    <pre class="programlisting"><div class="code-btn-container"><div class="btn-copy-code" title="Copy"><awsui-icon name="copy"></awsui-icon></div></div><!--DEBUG: cli (none)--><code class="nohighlight"><code class="userinput">aws iam attach-role-policy --role-name lambda-ex --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole</code></code></pre>
+    <p>After you create your execution role, attach it to your function. When you
+      <a href="./getting-started.html#getting-started-create-function">create a function in the Lambda console</a>,
+      you can attach any execution role that you previously created to the function. If you want
+      to attach a new execution role to an existing function, follow the steps in <a href="./permissions-executionrole-update.html#update-execution-role">Updating a function's execution role</a>.</p>
+   
+    <h2 id="permissions-executionrole-least-privilege">Grant least privilege access to your Lambda execution role</h2>
+    <p>When you first create an IAM role for your Lambda function during the development phase, you might sometimes
+      grant permissions beyond what is required. Before publishing your function in the production environment, as a
+      best practice, adjust the policy to include only the required permissions. For more information, see <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege">Apply least-privilege
+        permissions</a> in the IAM User Guide.</p>
+    <p>Use IAM Access Analyzer to help identify the required permissions for the IAM execution role policy. IAM Access Analyzer
+      reviews your AWS CloudTrail logs over the date range that you specify and generates a policy template with only the
+      permissions that the function used during that time. You can use the template to create a managed policy with
+      fine-grained permissions, and then attach it to the IAM role. That way, you grant only the permissions that the
+      role needs to interact with AWS resources for your specific use case.</p>
+    <p>For more information, see <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_generate-policy.html">Generate policies based on access
+      activity</a> in the IAM User Guide.</p>
+  <awsdocs-copyright class="copyright-print"></awsdocs-copyright><awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}"></awsdocs-thumb-feedback></div><noscript><div><div><div><div id="js_error_message"><p><img src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png" alt="Warning" /> <strong>Javascript is disabled or is unavailable in your browser.</strong></p><p>To use the Amazon Web Services Documentation, Javascript must be enabled. Please refer to your browser's Help pages for instructions.</p></div></div></div></div></noscript><div id="main-col-footer" class="awsui-util-font-size-0"><div id="doc-conventions"><a target="_top" href="/general/latest/gr/docconventions.html">Document Conventions</a></div><div class="prev-next"><div id="previous" class="prev-link" accesskey="p" href="./lambda-permissions.html">Permissions</div><div id="next" class="next-link" accesskey="n" href="./permissions-executionrole-update.html">Update execution role</div></div></div><awsdocs-page-utilities></awsdocs-page-utilities></div><div id="quick-feedback-yes" style="display: none;"><div class="title">Did this page help you? - Yes</div><div class="content"><p>Thanks for letting us know we're doing a good job!</p><p>If you've got a moment, please tell us what we did right so we can do more of it.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-intro-execution-role.html"></awsui-button></p></div></div><div id="quick-feedback-no" style="display: none;"><div class="title">Did this page help you? - No</div><div class="content"><p>Thanks for letting us know this page needs work. We're sorry we let you down.</p><p>If you've got a moment, please tell us how we can make the documentation better.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=Lambda&amp;topic_url=https://docs.aws.amazon.com/en_us/lambda/latest/dg/lambda-intro-execution-role.html"></awsui-button></p></div></div></div></body></div></awsdocs-view><div class="page-loading-indicator" id="page-loading-indicator"><awsui-spinner size="large"></awsui-spinner></div></div><div id="tools-panel" dom-region="tools"><awsdocs-tools-panel id="awsdocs-tools-panel"></awsdocs-tools-panel></div></awsui-app-layout><awsdocs-cookie-banner class="doc-cookie-banner"></awsdocs-cookie-banner></div></body></html>

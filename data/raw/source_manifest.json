@@ -1,0 +1,534 @@
+{
+  "project": "RAGBench",
+  "collection_timestamp_utc": "2026-11-04T15:52:16.776538+00:00",
+  "sources": [
+    {
+      "source_name": "python",
+      "official_website": "https://docs.python.org/3/",
+      "repository": "https://github.com/python/cpython",
+      "branch": "main",
+      "commit_sha": "0d3ab6f17e1119095ce9c452cd14c15e60256b50",
+      "version": "CPython main branch snapshot (Python 3.14 development tree; tutorial corresponds to Python 3.12-3.13 stable documentation)",
+      "license": "Python Software Foundation License Version 2",
+      "license_file": "data/raw/python/LICENSE",
+      "collection_method": "Raw source RST files downloaded from official CPython repository",
+      "raw_directory": "data/raw/python",
+      "included_page_count": 12,
+      "included_pages": [
+        {
+          "title": "Whetting Your Appetite",
+          "relative_path": "python/appetite.rst",
+          "url": "https://docs.python.org/3/tutorial/appetite.html",
+          "format": "rst"
+        },
+        {
+          "title": "Using the Python Interpreter",
+          "relative_path": "python/interpreter.rst",
+          "url": "https://docs.python.org/3/tutorial/interpreter.html",
+          "format": "rst"
+        },
+        {
+          "title": "An Informal Introduction to Python",
+          "relative_path": "python/introduction.rst",
+          "url": "https://docs.python.org/3/tutorial/introduction.html",
+          "format": "rst"
+        },
+        {
+          "title": "More Control Flow Tools",
+          "relative_path": "python/controlflow.rst",
+          "url": "https://docs.python.org/3/tutorial/controlflow.html",
+          "format": "rst"
+        },
+        {
+          "title": "Data Structures",
+          "relative_path": "python/datastructures.rst",
+          "url": "https://docs.python.org/3/tutorial/datastructures.html",
+          "format": "rst"
+        },
+        {
+          "title": "Modules",
+          "relative_path": "python/modules.rst",
+          "url": "https://docs.python.org/3/tutorial/modules.html",
+          "format": "rst"
+        },
+        {
+          "title": "Input and Output",
+          "relative_path": "python/inputoutput.rst",
+          "url": "https://docs.python.org/3/tutorial/inputoutput.html",
+          "format": "rst"
+        },
+        {
+          "title": "Errors and Exceptions",
+          "relative_path": "python/errors.rst",
+          "url": "https://docs.python.org/3/tutorial/errors.html",
+          "format": "rst"
+        },
+        {
+          "title": "Classes",
+          "relative_path": "python/classes.rst",
+          "url": "https://docs.python.org/3/tutorial/classes.html",
+          "format": "rst"
+        },
+        {
+          "title": "Brief Tour of the Standard Library",
+          "relative_path": "python/stdlib.rst",
+          "url": "https://docs.python.org/3/tutorial/stdlib.html",
+          "format": "rst"
+        },
+        {
+          "title": "Brief Tour of the Standard Library - Part II",
+          "relative_path": "python/stdlib2.rst",
+          "url": "https://docs.python.org/3/tutorial/stdlib2.html",
+          "format": "rst"
+        },
+        {
+          "title": "Virtual Environments and Packages",
+          "relative_path": "python/venv.rst",
+          "url": "https://docs.python.org/3/tutorial/venv.html",
+          "format": "rst"
+        }
+      ],
+      "excluded_files_or_categories": [
+        "interactive.rst",
+        "floatingpoint.rst",
+        "appendix.rst",
+        "c-api/",
+        "distutils/"
+      ],
+      "reasons_for_exclusions": "Out-of-scope internal C-API, deprecated tooling, or supplementary appendixes not part of core Python tutorial topics.",
+      "version_clarification": "The CPython repository default branch main tracks pre-release development towards Python 3.14. The tutorial documentation collected from Doc/tutorial/ covers standard language fundamentals identical to the current stable Python 3.12/3.13 documentation published at docs.python.org/3/.",
+      "content_source_revision": "unknown",
+      "license_verification_revision": "0d3ab6f17e1119095ce9c452cd14c15e60256b50",
+      "verification_status": "unknown",
+      "provenance_audit_notes": "Raw files were downloaded via HTTP from the CPython GitHub main branch raw endpoint without pinning an immutable commit SHA at fetch time. Therefore, the exact content revision cannot be confirmed cryptographically and is recorded as unknown. The repository LICENSE was inspected at commit 0d3ab6f17e1119095ce9c452cd14c15e60256b50 and verified as PSF-2.0."
+    },
+    {
+      "source_name": "scikit_learn",
+      "official_website": "https://scikit-learn.org/stable/",
+      "repository": "https://github.com/scikit-learn/scikit-learn",
+      "branch": "main",
+      "commit_sha": "d5a61d1149cb94a936d4b32212330f4ba8f24ce0",
+      "version": "Scikit-learn main branch snapshot (corresponds to Scikit-learn 1.5-1.6 stable User Guide)",
+      "license": "BSD 3-Clause License",
+      "license_file": "data/raw/scikit_learn/LICENSE",
+      "collection_method": "Raw source RST files downloaded from official Scikit-learn repository",
+      "raw_directory": "data/raw/scikit_learn",
+      "included_page_count": 14,
+      "included_pages": [
+        {
+          "title": "Getting Started",
+          "relative_path": "scikit_learn/getting_started.rst",
+          "url": "https://scikit-learn.org/stable/getting_started.html",
+          "format": "rst"
+        },
+        {
+          "title": "Supervised Learning",
+          "relative_path": "scikit_learn/supervised_learning.rst",
+          "url": "https://scikit-learn.org/stable/supervised_learning.html",
+          "format": "rst"
+        },
+        {
+          "title": "Unsupervised Learning",
+          "relative_path": "scikit_learn/unsupervised_learning.rst",
+          "url": "https://scikit-learn.org/stable/unsupervised_learning.html",
+          "format": "rst"
+        },
+        {
+          "title": "Dataset Transformations",
+          "relative_path": "scikit_learn/data_transforms.rst",
+          "url": "https://scikit-learn.org/stable/data_transforms.html",
+          "format": "rst"
+        },
+        {
+          "title": "Model Selection and Evaluation",
+          "relative_path": "scikit_learn/model_selection.rst",
+          "url": "https://scikit-learn.org/stable/model_selection.html",
+          "format": "rst"
+        },
+        {
+          "title": "Common Pitfalls and Recommended Practices",
+          "relative_path": "scikit_learn/common_pitfalls.rst",
+          "url": "https://scikit-learn.org/stable/common_pitfalls.html",
+          "format": "rst"
+        },
+        {
+          "title": "Preprocessing Data",
+          "relative_path": "scikit_learn/modules_preprocessing.rst",
+          "url": "https://scikit-learn.org/stable/modules/preprocessing.html",
+          "format": "rst"
+        },
+        {
+          "title": "Feature Selection",
+          "relative_path": "scikit_learn/modules_feature_selection.rst",
+          "url": "https://scikit-learn.org/stable/modules/feature_selection.html",
+          "format": "rst"
+        },
+        {
+          "title": "Cross-Validation: Evaluating Estimator Performance",
+          "relative_path": "scikit_learn/modules_cross_validation.rst",
+          "url": "https://scikit-learn.org/stable/modules/cross_validation.html",
+          "format": "rst"
+        },
+        {
+          "title": "Tuning Hyper-parameters of an Estimator",
+          "relative_path": "scikit_learn/modules_grid_search.rst",
+          "url": "https://scikit-learn.org/stable/modules/grid_search.html",
+          "format": "rst"
+        },
+        {
+          "title": "Metrics and Scoring: Quantifying the Quality of Predictions",
+          "relative_path": "scikit_learn/modules_model_evaluation.rst",
+          "url": "https://scikit-learn.org/stable/modules/model_evaluation.html",
+          "format": "rst"
+        },
+        {
+          "title": "Pipelines and Composite Estimators",
+          "relative_path": "scikit_learn/modules_compose.rst",
+          "url": "https://scikit-learn.org/stable/modules/compose.html",
+          "format": "rst"
+        },
+        {
+          "title": "Imputation of Missing Values",
+          "relative_path": "scikit_learn/modules_impute.rst",
+          "url": "https://scikit-learn.org/stable/modules/impute.html",
+          "format": "rst"
+        },
+        {
+          "title": "Clustering",
+          "relative_path": "scikit_learn/modules_clustering.rst",
+          "url": "https://scikit-learn.org/stable/modules/clustering.html",
+          "format": "rst"
+        }
+      ],
+      "excluded_files_or_categories": [
+        "doc/developers/",
+        "doc/whats_new/",
+        "doc/governance.rst",
+        "doc/presentations.rst"
+      ],
+      "reasons_for_exclusions": "Developer guidelines, governance, release notes, and community documents excluded to focus on machine learning user guide topics.",
+      "version_clarification": "The Scikit-learn repository default branch main tracks in-development releases (1.6/1.7 dev). The collected user guide chapters from doc/ match the concepts, estimators, and metrics documented in the current stable User Guide at scikit-learn.org/stable/.",
+      "content_source_revision": "unknown",
+      "license_verification_revision": "d5a61d1149cb94a936d4b32212330f4ba8f24ce0",
+      "verification_status": "unknown",
+      "provenance_audit_notes": "Raw files were downloaded via HTTP from the Scikit-learn GitHub main branch raw endpoint without pinning an immutable commit SHA at fetch time. Therefore, the exact content revision is recorded as unknown. The repository LICENSE (COPYING) was inspected at commit d5a61d1149cb94a936d4b32212330f4ba8f24ce0 and verified as BSD-3-Clause."
+    },
+    {
+      "source_name": "docker",
+      "official_website": "https://docs.docker.com/",
+      "repository": "https://github.com/docker/docs",
+      "branch": "main",
+      "commit_sha": "4937e25aa671f382c793fd03ba457bdb25e0d028",
+      "version": "Docker Docs main branch snapshot (corresponds to current official documentation at docs.docker.com)",
+      "license": "Apache License 2.0 (Apache-2.0)",
+      "license_file": "data/raw/docker/LICENSE",
+      "collection_method": "Raw source Markdown files downloaded from official docker/docs repository",
+      "raw_directory": "data/raw/docker",
+      "included_page_count": 13,
+      "included_pages": [
+        {
+          "title": "Docker Overview",
+          "relative_path": "docker/docker-overview.md",
+          "url": "https://docs.docker.com/get-started/docker-overview/",
+          "format": "md"
+        },
+        {
+          "title": "What is a Container?",
+          "relative_path": "docker/what-is-a-container.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/",
+          "format": "md"
+        },
+        {
+          "title": "What is an Image?",
+          "relative_path": "docker/what-is-an-image.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/",
+          "format": "md"
+        },
+        {
+          "title": "What is Docker Compose?",
+          "relative_path": "docker/what-is-docker-compose.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-docker-compose/",
+          "format": "md"
+        },
+        {
+          "title": "What is a Container Registry?",
+          "relative_path": "docker/what-is-a-registry.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-registry/",
+          "format": "md"
+        },
+        {
+          "title": "Writing a Dockerfile",
+          "relative_path": "docker/writing-a-dockerfile.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/building-images/writing-a-dockerfile/",
+          "format": "md"
+        },
+        {
+          "title": "Build, Tag, and Publish an Image",
+          "relative_path": "docker/build-tag-and-publish-an-image.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/",
+          "format": "md"
+        },
+        {
+          "title": "Multi-stage Builds",
+          "relative_path": "docker/multi-stage-builds.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/building-images/multi-stage-builds/",
+          "format": "md"
+        },
+        {
+          "title": "Using the Build Cache",
+          "relative_path": "docker/using-the-build-cache.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/building-images/using-the-build-cache/",
+          "format": "md"
+        },
+        {
+          "title": "Publishing Ports",
+          "relative_path": "docker/publishing-ports.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/",
+          "format": "md"
+        },
+        {
+          "title": "Persisting Container Data",
+          "relative_path": "docker/persisting-container-data.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/running-containers/persisting-container-data/",
+          "format": "md"
+        },
+        {
+          "title": "Sharing Local Files (Bind Mounts)",
+          "relative_path": "docker/sharing-local-files.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/running-containers/sharing-local-files/",
+          "format": "md"
+        },
+        {
+          "title": "Multi-container Applications",
+          "relative_path": "docker/multi-container-applications.md",
+          "url": "https://docs.docker.com/get-started/docker-concepts/running-containers/multi-container-applications/",
+          "format": "md"
+        }
+      ],
+      "excluded_files_or_categories": [
+        "content/manuals/subscription-billing/",
+        "content/manuals/support/",
+        "content/manuals/release-lifecycle.md"
+      ],
+      "reasons_for_exclusions": "Commercial billing, account management, and legacy release lifecycle documents excluded.",
+      "unverified_candidate_sha": "a342371cfda92b772c57a9099859f7b19cecd315",
+      "commit_verification_notes": "The candidate commit SHA a342371cfda92b772c57a9099859f7b19cecd315 was inspected locally via Git (git cat-file -t) against https://github.com/docker/docs.git and confirmed not to be a valid ref/object in the official repository. The active verified HEAD commit on main is 4937e25aa671f382c793fd03ba457bdb25e0d028.",
+      "license_evidence": "Inspected repository root LICENSE via Git at commit 4937e25aa671f382c793fd03ba457bdb25e0d028. Full Apache 2.0 license text (Copyright 2016 Docker, Inc.) is present. Section 1 explicitly defines Source form as the preferred form for making modifications, including but not limited to software source code, documentation source, and configuration files. Under Section 2, Apache-2.0 applies uniformly to both documentation source (.md) and code examples.",
+      "content_source_revision": "unknown",
+      "license_verification_revision": "4937e25aa671f382c793fd03ba457bdb25e0d028",
+      "verification_status": "unknown",
+      "provenance_audit_notes": "Raw files were downloaded via HTTP from the docker/docs main branch raw endpoint without pinning an immutable commit SHA at fetch time. The previously candidate SHA a342371cfda92b772c57a9099859f7b19cecd315 was verified locally via Git and confirmed not to be a valid ref in docker/docs.git; thus original collection revision is recorded as unknown. The repository LICENSE was inspected via Git at commit 4937e25aa671f382c793fd03ba457bdb25e0d028 and confirmed to be Apache 2.0 (Apache-2.0), applying to both documentation source and code."
+    },
+    {
+      "source_name": "fastapi",
+      "official_website": "https://fastapi.tiangolo.com/",
+      "repository": "https://github.com/fastapi/fastapi",
+      "branch": "master",
+      "commit_sha": "80d475b44a278253d15744a683af9614853af19e",
+      "version": "FastAPI master branch snapshot (corresponds to FastAPI 0.115+ official documentation)",
+      "license": "MIT License",
+      "license_file": "data/raw/fastapi/LICENSE",
+      "collection_method": "Raw source Markdown files downloaded from official fastapi/fastapi repository (docs/en/)",
+      "raw_directory": "data/raw/fastapi",
+      "included_page_count": 14,
+      "included_pages": [
+        {
+          "title": "FastAPI Introduction",
+          "relative_path": "fastapi/index.md",
+          "url": "https://fastapi.tiangolo.com/",
+          "format": "md"
+        },
+        {
+          "title": "First Steps",
+          "relative_path": "fastapi/tutorial_first-steps.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/",
+          "format": "md"
+        },
+        {
+          "title": "Path Parameters",
+          "relative_path": "fastapi/tutorial_path-params.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/",
+          "format": "md"
+        },
+        {
+          "title": "Query Parameters",
+          "relative_path": "fastapi/tutorial_query-params.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/",
+          "format": "md"
+        },
+        {
+          "title": "Request Body",
+          "relative_path": "fastapi/tutorial_body.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/",
+          "format": "md"
+        },
+        {
+          "title": "Response Model - Return Type",
+          "relative_path": "fastapi/tutorial_response-model.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/",
+          "format": "md"
+        },
+        {
+          "title": "Dependencies - First Steps",
+          "relative_path": "fastapi/tutorial_dependencies_index.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/",
+          "format": "md"
+        },
+        {
+          "title": "Security - First Steps",
+          "relative_path": "fastapi/tutorial_security_index.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/security/",
+          "format": "md"
+        },
+        {
+          "title": "Middleware",
+          "relative_path": "fastapi/tutorial_middleware.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/middleware/",
+          "format": "md"
+        },
+        {
+          "title": "Handling Errors",
+          "relative_path": "fastapi/tutorial_handling-errors.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/",
+          "format": "md"
+        },
+        {
+          "title": "Background Tasks",
+          "relative_path": "fastapi/tutorial_background-tasks.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/background-tasks/",
+          "format": "md"
+        },
+        {
+          "title": "Testing",
+          "relative_path": "fastapi/tutorial_testing.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/testing/",
+          "format": "md"
+        },
+        {
+          "title": "SQL (Relational) Databases",
+          "relative_path": "fastapi/tutorial_sql-databases.md",
+          "url": "https://fastapi.tiangolo.com/tutorial/sql-databases/",
+          "format": "md"
+        },
+        {
+          "title": "Deployment Concepts",
+          "relative_path": "fastapi/deployment_index.md",
+          "url": "https://fastapi.tiangolo.com/deployment/",
+          "format": "md"
+        }
+      ],
+      "excluded_files_or_categories": [
+        "docs/zh/",
+        "docs/es/",
+        "docs/ja/",
+        "docs/pt/",
+        "docs/ru/",
+        "docs/de/",
+        "docs/ko/"
+      ],
+      "reasons_for_exclusions": "Non-English translations excluded; only English official documentation collected.",
+      "version_clarification": "FastAPI default branch is master, which directly drives the deployed documentation at fastapi.tiangolo.com. The collected pages represent the current official English documentation for FastAPI 0.115+.",
+      "content_source_revision": "unknown",
+      "license_verification_revision": "80d475b44a278253d15744a683af9614853af19e",
+      "verification_status": "unknown",
+      "provenance_audit_notes": "Raw files were downloaded via HTTP from the FastAPI GitHub master branch raw endpoint without pinning an immutable commit SHA at fetch time. Therefore, the exact content revision is recorded as unknown. The repository LICENSE was inspected at commit 80d475b44a278253d15744a683af9614853af19e and verified as MIT."
+    },
+    {
+      "source_name": "aws",
+      "official_website": "https://docs.aws.amazon.com/",
+      "repository": "N/A (rendered HTML documentation used because official AWS docs repositories are not maintained as public Markdown trees for all 4 services)",
+      "branch": "N/A",
+      "commit_sha": "N/A",
+      "version": "AWS Documentation Current (November 2026)",
+      "license": "Documentation: CC-BY-SA-4.0; Code Examples: MIT-0",
+      "license_file": "data/raw/aws/LICENSE.txt",
+      "collection_method": "Rendered official HTML pages downloaded directly from docs.aws.amazon.com",
+      "raw_directory": "data/raw/aws",
+      "included_page_count": 12,
+      "included_pages": [
+        {
+          "title": "What is IAM?",
+          "relative_path": "aws/iam_introduction.html",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html",
+          "format": "html"
+        },
+        {
+          "title": "IAM Identities (users, user groups, and roles)",
+          "relative_path": "aws/iam_identities.html",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html",
+          "format": "html"
+        },
+        {
+          "title": "Policies and Permissions in IAM",
+          "relative_path": "aws/iam_policies.html",
+          "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html",
+          "format": "html"
+        },
+        {
+          "title": "What is Amazon S3?",
+          "relative_path": "aws/s3_welcome.html",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html",
+          "format": "html"
+        },
+        {
+          "title": "Working with Amazon S3 Buckets",
+          "relative_path": "aws/s3_buckets_objects.html",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html",
+          "format": "html"
+        },
+        {
+          "title": "Identity and Access Management for Amazon S3",
+          "relative_path": "aws/s3_access_control.html",
+          "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-overview.html",
+          "format": "html"
+        },
+        {
+          "title": "What is Amazon EC2?",
+          "relative_path": "aws/ec2_concepts.html",
+          "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html",
+          "format": "html"
+        },
+        {
+          "title": "Amazon EC2 Instances",
+          "relative_path": "aws/ec2_instances.html",
+          "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Instances.html",
+          "format": "html"
+        },
+        {
+          "title": "Amazon EC2 Security Groups",
+          "relative_path": "aws/ec2_security_groups.html",
+          "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html",
+          "format": "html"
+        },
+        {
+          "title": "What is AWS Lambda?",
+          "relative_path": "aws/lambda_welcome.html",
+          "url": "https://docs.aws.amazon.com/lambda/latest/dg/welcome.html",
+          "format": "html"
+        },
+        {
+          "title": "AWS Lambda Execution Environment",
+          "relative_path": "aws/lambda_runtime_environment.html",
+          "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html",
+          "format": "html"
+        },
+        {
+          "title": "AWS Lambda Execution Role",
+          "relative_path": "aws/lambda_execution_role.html",
+          "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html",
+          "format": "html"
+        }
+      ],
+      "excluded_files_or_categories": [
+        "AWS Services outside IAM, S3, EC2, and Lambda",
+        "API Reference documentation",
+        "CLI Reference documentation"
+      ],
+      "reasons_for_exclusions": "AWS documentation scope intentionally restricted to core concepts of four essential services (IAM, S3, EC2, Lambda).",
+      "compliance_considerations": "Documentation content is published by AWS under CC-BY-SA-4.0 and code examples under MIT-0. Collection was conducted via a targeted, low-volume HTTP retrieval of 12 conceptual HTML pages with an identified User-Agent (RAGBench-Collector/1.0) and delay spacing to minimize server impact. This technical collection design is documented for reproducibility and is distinct from a legal determination that the collection complied with AWS Site Terms. RAGBench makes no claim of explicit authorization, license waiver, or guaranteed legal compliance under AWS Site Terms.",
+      "content_source_revision": "N/A",
+      "license_verification_revision": "N/A",
+      "verification_status": "verified"
+    }
+  ]
+}

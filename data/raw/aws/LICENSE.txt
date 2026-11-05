@@ -1,0 +1,9 @@
+AWS Documentation Attribution & License:
+Source: Official Amazon Web Services (AWS) Documentation (https://docs.aws.amazon.com/)
+Documentation License: Creative Commons Attribution-ShareAlike 4.0 International (CC-BY-SA-4.0)
+Code Examples License: MIT No Attribution (MIT-0)
+Reference: AWS Open Source Documentation and Code Samples licensing terms (https://aws.amazon.com/terms/)
+
+Collection Method & Terms of Use Consideration:
+- Collection Method: A documented, low-volume, rate-limited HTTP retrieval of 12 specific public conceptual HTML pages across IAM, S3, EC2, and Lambda with an identified User-Agent ("RAGBench-Collector/1.0") and spacing delays between requests.
+- Important Distinction: This technical collection method was designed to minimize server impact and avoid placing unreasonable load on AWS infrastructure. This documented method is distinct from a legal determination that the collection complied with AWS Site Terms. RAGBench makes no claim of explicit authorization, license waiver, or guaranteed legal compliance under AWS Site Terms. Users are responsible for evaluating their own compliance.

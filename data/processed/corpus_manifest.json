@@ -1,0 +1,31 @@
+{
+  "project": "RAGBench",
+  "processing_timestamp_utc": "2026-11-04T15:57:02.183261+00:00",
+  "source_count": 5,
+  "raw_files_discovered": 65,
+  "processed_document_count": 65,
+  "documents_per_source": {
+    "python": 12,
+    "scikit_learn": 14,
+    "docker": 13,
+    "fastapi": 14,
+    "aws": 12
+  },
+  "words_per_source": {
+    "python": 34626,
+    "scikit_learn": 56827,
+    "docker": 15719,
+    "fastapi": 17208,
+    "aws": 28258
+  },
+  "total_word_count": 152638,
+  "dataset_size_bytes": 1244227,
+  "duplicate_count": 0,
+  "excluded_files": [],
+  "preparation_script": "scripts/prepare_docs.py (v1.0)",
+  "source_manifest_reference": "data/raw/source_manifest.json",
+  "validation": {
+    "passed": true,
+    "errors": []
+  }
+}
