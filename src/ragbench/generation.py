@@ -48,7 +48,9 @@ class GeneratedAnswer:
 class Generator(Protocol):
     name: str
 
-    def generate(self, question: str, contexts: list[SearchResult]) -> GeneratedAnswer: ...
+    def generate(
+        self, question: str, contexts: list[SearchResult], confidence: float | None = None
+    ) -> GeneratedAnswer: ...
 
 
 def build_prompt(question: str, contexts: list[SearchResult]) -> str:
@@ -96,8 +98,14 @@ class ExtractiveGenerator:
         self.min_score = min_score
         self.max_sentences = max_sentences
 
-    def generate(self, question: str, contexts: list[SearchResult]) -> GeneratedAnswer:
-        if not contexts or contexts[0].score < self.min_score:
+    def generate(
+        self, question: str, contexts: list[SearchResult], confidence: float | None = None
+    ) -> GeneratedAnswer:
+        """`confidence` is the retriever's dense similarity; it defaults to the top
+        context score (which is only a cosine similarity for dense retrieval)."""
+        if confidence is None and contexts:
+            confidence = contexts[0].score
+        if not contexts or confidence < self.min_score:
             return GeneratedAnswer(text=ABSTAIN_TEXT, abstained=True)
         q = _content_tokens(question)
         candidates = []

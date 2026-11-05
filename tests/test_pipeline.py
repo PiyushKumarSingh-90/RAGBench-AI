@@ -16,6 +16,7 @@ from ragbench.generation import (
     parse_answer,
 )
 from ragbench.pipeline import BaselineConfig, RAGPipeline, build_index
+from ragbench.retrieval import DenseRetriever
 from ragbench.vectorstore import NumpyVectorStore
 
 
@@ -86,12 +87,9 @@ def _pipeline(texts, min_score=0.1):
     docs = [make_doc(t, f"d{i}") for i, t in enumerate(texts)]
     emb = HashingEmbedder()
     store = build_index(docs, emb, BaselineConfig(chunk_size=50, chunk_overlap=10, top_k=2))
-    return RAGPipeline(store, emb, ExtractiveGenerator(min_score=min_score), store_config(store))
-
-
-def store_config(store):
-    m = store.meta
-    return BaselineConfig(m["chunk_size"], m["chunk_overlap"], m["top_k"])
+    pipe = RAGPipeline(DenseRetriever(store, emb), ExtractiveGenerator(min_score=min_score), 2)
+    pipe.store, pipe.embedder = store, emb
+    return pipe
 
 
 def test_pipeline_retrieves_and_cites_retrieved_chunk():
@@ -106,7 +104,7 @@ def test_pipeline_retrieves_and_cites_retrieved_chunk():
     assert not res.answer.abstained
     retrieved_ids = {r.chunk.chunk_id for r in res.retrieved}
     assert res.citations and all(c["chunk_id"] in retrieved_ids for c in res.citations)
-    assert set(res.timings_ms) == {"embedding", "retrieval", "generation", "total"}
+    assert {"embedding", "retrieval", "generation", "total"} <= set(res.timings_ms)
 
 
 def test_pipeline_abstains_below_threshold():
@@ -119,7 +117,7 @@ def test_pipeline_drops_fabricated_citations():
     class LyingGenerator:
         name = "liar"
 
-        def generate(self, question, contexts):
+        def generate(self, question, contexts, confidence=None):
             return GeneratedAnswer("x", [contexts[0].chunk.chunk_id, "fake::chunk"])
 
     pipe = _pipeline(["Docker volumes persist data."])
@@ -151,4 +149,4 @@ def test_store_roundtrip(tmp_path):
 def test_embedder_mismatch_rejected():
     pipe = _pipeline(["Docker volumes persist data."])
     with pytest.raises(ValueError):
-        RAGPipeline(pipe.store, HashingEmbedder(dim=64), pipe.generator)
+        DenseRetriever(pipe.store, HashingEmbedder(dim=64))

@@ -1,0 +1,134 @@
+{
+  "config": {
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "fixed_index": {
+      "num_chunks": 972,
+      "chunk_size": 200,
+      "chunk_overlap": 40
+    },
+    "candidates": 20,
+    "rrf_k": 60,
+    "reranker": "cross-encoder/ms-marco-MiniLM-L6-v2",
+    "top_k": 5,
+    "abstention_min_score": 0.35
+  },
+  "strategies": [
+    {
+      "strategy": "dense_fixed",
+      "retriever": "dense_fixed",
+      "top_k": 5,
+      "num_answerable": 40,
+      "num_unanswerable": 10,
+      "doc_hit_at_1": 0.925,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.954,
+      "section_hit_at_5": 0.925,
+      "multi_section_gold_doc_coverage": 0.857,
+      "section_hit_by_type": {
+        "conceptual": "10/10",
+        "direct_factual": "9/10",
+        "how_to": "8/10",
+        "multi_section": "10/10"
+      },
+      "answerable_abstained": 0,
+      "unanswerable_abstained": 1,
+      "dropped_citations_total": 0,
+      "latency_ms_median": {
+        "embedding": 5.816,
+        "retrieval": 0.071,
+        "retrieval_total": 5.888,
+        "total": 6.255
+      },
+      "generator": "extractive(min_score=0.35,max_sentences=2)"
+    },
+    {
+      "strategy": "dense_semantic",
+      "retriever": "dense_semantic",
+      "top_k": 5,
+      "num_answerable": 40,
+      "num_unanswerable": 10,
+      "doc_hit_at_1": 0.975,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.981,
+      "section_hit_at_5": 0.875,
+      "multi_section_gold_doc_coverage": 1.0,
+      "section_hit_by_type": {
+        "conceptual": "9/10",
+        "direct_factual": "8/10",
+        "how_to": "8/10",
+        "multi_section": "10/10"
+      },
+      "answerable_abstained": 0,
+      "unanswerable_abstained": 0,
+      "dropped_citations_total": 0,
+      "latency_ms_median": {
+        "embedding": 5.844,
+        "retrieval": 0.09,
+        "retrieval_total": 5.938,
+        "total": 6.146
+      },
+      "generator": "extractive(min_score=0.35,max_sentences=2)"
+    },
+    {
+      "strategy": "hybrid",
+      "retriever": "hybrid(bm25+dense,rrf_k=60,candidates=20)",
+      "top_k": 5,
+      "num_answerable": 40,
+      "num_unanswerable": 10,
+      "doc_hit_at_1": 0.925,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.958,
+      "section_hit_at_5": 1.0,
+      "multi_section_gold_doc_coverage": 0.929,
+      "section_hit_by_type": {
+        "conceptual": "10/10",
+        "direct_factual": "10/10",
+        "how_to": "10/10",
+        "multi_section": "10/10"
+      },
+      "answerable_abstained": 0,
+      "unanswerable_abstained": 1,
+      "dropped_citations_total": 0,
+      "latency_ms_median": {
+        "embedding": 5.752,
+        "retrieval": 0.077,
+        "bm25": 1.194,
+        "fusion": 0.015,
+        "retrieval_total": 7.136,
+        "total": 7.464
+      },
+      "generator": "extractive(min_score=0.35,max_sentences=2)"
+    },
+    {
+      "strategy": "rerank",
+      "retriever": "rerank(cross-encoder/ms-marco-MiniLM-L6-v2) over hybrid(bm25+dense,rrf_k=60,candidates=20), candidates=20",
+      "top_k": 5,
+      "num_answerable": 40,
+      "num_unanswerable": 10,
+      "doc_hit_at_1": 0.925,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.947,
+      "section_hit_at_5": 0.975,
+      "multi_section_gold_doc_coverage": 0.857,
+      "section_hit_by_type": {
+        "conceptual": "10/10",
+        "direct_factual": "10/10",
+        "how_to": "10/10",
+        "multi_section": "9/10"
+      },
+      "answerable_abstained": 0,
+      "unanswerable_abstained": 1,
+      "dropped_citations_total": 0,
+      "latency_ms_median": {
+        "embedding": 6.445,
+        "retrieval": 0.095,
+        "bm25": 1.153,
+        "fusion": 0.022,
+        "rerank": 175.129,
+        "retrieval_total": 183.25,
+        "total": 183.591
+      },
+      "generator": "extractive(min_score=0.35,max_sentences=2)"
+    }
+  ]
+}

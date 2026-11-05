@@ -1,0 +1,30 @@
+{
+  "strategy": "hybrid",
+  "retriever": "hybrid(bm25+dense,rrf_k=60,candidates=20)",
+  "top_k": 5,
+  "num_answerable": 40,
+  "num_unanswerable": 10,
+  "doc_hit_at_1": 0.925,
+  "doc_hit_at_5": 1.0,
+  "doc_mrr_at_5": 0.958,
+  "section_hit_at_5": 1.0,
+  "multi_section_gold_doc_coverage": 0.929,
+  "section_hit_by_type": {
+    "conceptual": "10/10",
+    "direct_factual": "10/10",
+    "how_to": "10/10",
+    "multi_section": "10/10"
+  },
+  "answerable_abstained": 0,
+  "unanswerable_abstained": 1,
+  "dropped_citations_total": 0,
+  "latency_ms_median": {
+    "embedding": 5.752,
+    "retrieval": 0.077,
+    "bm25": 1.194,
+    "fusion": 0.015,
+    "retrieval_total": 7.136,
+    "total": 7.464
+  },
+  "generator": "extractive(min_score=0.35,max_sentences=2)"
+}

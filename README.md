@@ -20,9 +20,28 @@ The framework will benchmark four distinct retrieval approaches:
 
 ## Development Status
 
-> **Status: Phase 3 — Baseline RAG Pipeline (implemented, awaiting review)**
+> **Status: Phase 4 — Retrieval Strategies (implemented, awaiting review)**
 >
-> Phase 1 (corpus) and Phase 2 (50-question benchmark) are complete. Phase 3 adds the baseline: fixed-size chunking, local MiniLM embeddings, NumPy vector search, and a pluggable generator. An offline extractive stub is used because no LLM is connected yet. The other three retrieval strategies (Phase 4) and the full evaluation (Phase 5) are not implemented.
+> Phase 1 (corpus), Phase 2 (50-question benchmark) and Phase 3 (baseline pipeline) are complete. Phase 4 adds all four retrieval strategies behind one pipeline. No LLM is connected yet (an offline extractive stub is used), and the full Phase 5 evaluation is not implemented.
+
+---
+
+## Phase 4 Retrieval Strategies
+
+| # | Strategy | How it retrieves |
+|---|---|---|
+| 1 | `dense_fixed` | MiniLM embeddings over 200-word chunks with 40-word overlap |
+| 2 | `dense_semantic` | MiniLM over section + paragraph chunks (no chunk crosses a heading) |
+| 3 | `hybrid` | BM25 + dense, fused with Reciprocal Rank Fusion (k = 60) |
+| 4 | `rerank` | Hybrid top 20, reranked by `cross-encoder/ms-marco-MiniLM-L6-v2` |
+
+```bash
+python scripts/build_index.py --chunking fixed
+python scripts/build_index.py --chunking semantic
+python scripts/run_strategies.py             # -> results/phase4/comparison.md
+```
+
+Preliminary results: every strategy finds a gold document in the top 5 for all 40 answerable questions. Semantic chunking ranks it first most often (0.975). Hybrid finds a gold section for 40/40. Reranking adds about 175 ms per query without improving on hybrid. See `docs/phase4_retrieval_strategies.md` for the full table, misses, latency and caveats.
 
 ---
 

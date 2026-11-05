@@ -40,7 +40,7 @@ def main() -> None:
         HashingEmbedder() if model.startswith("hashing") else SentenceTransformerEmbedder(model)
     )
     generator = ExtractiveGenerator(min_score=a.min_score)
-    pipe = RAGPipeline.from_index_dir(a.index, embedder, generator)
+    pipe = RAGPipeline.dense_from_index_dir(a.index, embedder, generator)
 
     questions = [json.loads(line) for line in BENCHMARK.open(encoding="utf-8") if line.strip()]
     a.out.mkdir(parents=True, exist_ok=True)
@@ -84,6 +84,7 @@ def main() -> None:
         "latency_ms_median": {
             k: round(statistics.median(r["timings_ms"][k] for r in rows), 3)
             for k in ("embedding", "retrieval", "generation", "total")
+            if k in rows[0]["timings_ms"]
         },
         "by_question_type_doc_hit_at_k": {
             t: f"{sum(r['doc_hit_at_k'] for r in ans if r['question_type'] == t)}"

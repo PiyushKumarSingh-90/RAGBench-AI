@@ -1,0 +1,31 @@
+{
+  "strategy": "rerank",
+  "retriever": "rerank(cross-encoder/ms-marco-MiniLM-L6-v2) over hybrid(bm25+dense,rrf_k=60,candidates=20), candidates=20",
+  "top_k": 5,
+  "num_answerable": 40,
+  "num_unanswerable": 10,
+  "doc_hit_at_1": 0.925,
+  "doc_hit_at_5": 1.0,
+  "doc_mrr_at_5": 0.947,
+  "section_hit_at_5": 0.975,
+  "multi_section_gold_doc_coverage": 0.857,
+  "section_hit_by_type": {
+    "conceptual": "10/10",
+    "direct_factual": "10/10",
+    "how_to": "10/10",
+    "multi_section": "9/10"
+  },
+  "answerable_abstained": 0,
+  "unanswerable_abstained": 1,
+  "dropped_citations_total": 0,
+  "latency_ms_median": {
+    "embedding": 6.445,
+    "retrieval": 0.095,
+    "bm25": 1.153,
+    "fusion": 0.022,
+    "rerank": 175.129,
+    "retrieval_total": 183.25,
+    "total": 183.591
+  },
+  "generator": "extractive(min_score=0.35,max_sentences=2)"
+}

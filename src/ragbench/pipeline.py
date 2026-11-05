@@ -1,4 +1,8 @@
-"""Baseline RAG pipeline: fixed-size chunks -> dense embeddings -> top-k -> generator."""
+"""RAG pipeline: retriever -> generator, with citation guarding and timings.
+
+The retriever decides the strategy (see `ragbench.retrieval`); the generator
+and citation handling are shared by all strategies.
+"""
 
 from __future__ import annotations
 
@@ -6,18 +10,24 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from ragbench.chunking import chunk_corpus
+from ragbench.chunking import chunk_corpus, chunk_corpus_semantic
 from ragbench.corpus import Document
 from ragbench.embeddings import Embedder
 from ragbench.generation import GeneratedAnswer, Generator
+from ragbench.retrieval import DenseRetriever, Retriever
 from ragbench.vectorstore import NumpyVectorStore, SearchResult
+
+CHUNKINGS = ("fixed", "semantic")
 
 
 @dataclass(frozen=True)
 class BaselineConfig:
+    """Index configuration. `chunk_overlap` applies to fixed chunking only."""
+
     chunk_size: int = 200
     chunk_overlap: int = 40
     top_k: int = 5
+    chunking: str = "fixed"
 
 
 @dataclass
@@ -26,6 +36,7 @@ class PipelineResult:
     answer: GeneratedAnswer
     retrieved: list[SearchResult]
     citations: list[dict]
+    confidence: float = 0.0
     dropped_citations: list[str] = field(default_factory=list)
     timings_ms: dict[str, float] = field(default_factory=dict)
 
@@ -34,6 +45,7 @@ class PipelineResult:
             "question": self.question,
             "answer": self.answer.text,
             "abstained": self.answer.abstained,
+            "confidence": round(self.confidence, 6),
             "citations": self.citations,
             "dropped_citations": self.dropped_citations,
             "retrieved": [
@@ -54,59 +66,56 @@ class PipelineResult:
 def build_index(
     docs: list[Document], embedder: Embedder, config: BaselineConfig
 ) -> NumpyVectorStore:
-    chunks = chunk_corpus(docs, config.chunk_size, config.chunk_overlap)
+    if config.chunking == "fixed":
+        chunks = chunk_corpus(docs, config.chunk_size, config.chunk_overlap)
+    elif config.chunking == "semantic":
+        chunks = chunk_corpus_semantic(docs, config.chunk_size)
+    else:
+        raise ValueError(f"chunking must be one of {CHUNKINGS}")
     vectors = embedder.embed([c.text for c in chunks])
     meta = {
-        "strategy": "dense_fixed",
+        "strategy": f"dense_{config.chunking}",
         "embedding_model": embedder.name,
         "embedding_dim": int(vectors.shape[1]),
         "num_documents": len(docs),
         "num_chunks": len(chunks),
         **asdict(config),
     }
+    if config.chunking == "semantic":
+        meta["chunk_overlap"] = 0
     return NumpyVectorStore(chunks, vectors, meta)
 
 
+def config_from_meta(meta: dict) -> BaselineConfig:
+    return BaselineConfig(
+        chunk_size=meta["chunk_size"],
+        chunk_overlap=meta["chunk_overlap"],
+        top_k=meta["top_k"],
+        chunking=meta.get("chunking", "fixed"),
+    )
+
+
 class RAGPipeline:
-    def __init__(
-        self,
-        store: NumpyVectorStore,
-        embedder: Embedder,
-        generator: Generator,
-        config: BaselineConfig = BaselineConfig(),
-    ):
-        if store.meta.get("embedding_model") not in (None, embedder.name):
-            raise ValueError(
-                f"index built with {store.meta['embedding_model']!r}, "
-                f"query embedder is {embedder.name!r}"
-            )
-        self.store = store
-        self.embedder = embedder
+    def __init__(self, retriever: Retriever, generator: Generator, top_k: int = 5):
+        self.retriever = retriever
         self.generator = generator
-        self.config = config
+        self.top_k = top_k
 
     @classmethod
-    def from_index_dir(cls, directory: Path, embedder, generator, config=None):
+    def dense_from_index_dir(cls, directory: Path, embedder: Embedder, generator: Generator):
         store = NumpyVectorStore.load(directory)
-        if config is None:
-            config = BaselineConfig(
-                chunk_size=store.meta["chunk_size"],
-                chunk_overlap=store.meta["chunk_overlap"],
-                top_k=store.meta["top_k"],
-            )
-        return cls(store, embedder, generator, config)
+        retriever = DenseRetriever(store, embedder, name=store.meta["strategy"])
+        return cls(retriever, generator, store.meta["top_k"])
 
     def query(self, question: str) -> PipelineResult:
         t0 = time.perf_counter()
-        qvec = self.embedder.embed([question])[0]
+        out = self.retriever.retrieve(question, self.top_k)
         t1 = time.perf_counter()
-        retrieved = self.store.search(qvec, self.config.top_k)
+        answer = self.generator.generate(question, out.results, confidence=out.confidence)
         t2 = time.perf_counter()
-        answer = self.generator.generate(question, retrieved)
-        t3 = time.perf_counter()
 
         # Never surface a citation to a chunk that was not retrieved.
-        by_id = {r.chunk.chunk_id: r.chunk for r in retrieved}
+        by_id = {r.chunk.chunk_id: r.chunk for r in out.results}
         valid = [cid for cid in answer.cited_chunk_ids if cid in by_id]
         dropped = [cid for cid in answer.cited_chunk_ids if cid not in by_id]
         answer.cited_chunk_ids = valid
@@ -122,16 +131,11 @@ class RAGPipeline:
             for cid in valid
         ]
         timings = {
-            "embedding": (t1 - t0) * 1000,
-            "retrieval": (t2 - t1) * 1000,
-            "generation": (t3 - t2) * 1000,
-            "total": (t3 - t0) * 1000,
+            **out.timings_ms,
+            "retrieval_total": round((t1 - t0) * 1000, 3),
+            "generation": round((t2 - t1) * 1000, 3),
+            "total": round((t2 - t0) * 1000, 3),
         }
         return PipelineResult(
-            question,
-            answer,
-            retrieved,
-            citations,
-            dropped,
-            {k: round(v, 3) for k, v in timings.items()},
+            question, answer, out.results, citations, out.confidence, dropped, timings
         )
