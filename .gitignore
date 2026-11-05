@@ -24,3 +24,7 @@ htmlcov/
 # Editor
 .vscode/*.log
 
+
+# Generated retrieval indexes (rebuild with scripts/build_index.py)
+data/index/
+*.egg-info/

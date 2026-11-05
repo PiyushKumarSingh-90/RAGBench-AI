@@ -20,9 +20,21 @@ The framework will benchmark four distinct retrieval approaches:
 
 ## Development Status
 
-> **Status: Phase 2 — Benchmark Question Creation (combined benchmark validated, awaiting final approval)**
+> **Status: Phase 3 — Baseline RAG Pipeline (implemented, awaiting review)**
 >
-> Phase 1 (documentation corpus) is complete. Phase 2 has produced a 50-question benchmark. RAG functionality, chunking, embeddings, vector storage, and evaluation pipelines have **not** been implemented yet.
+> Phase 1 (corpus) and Phase 2 (50-question benchmark) are complete. Phase 3 adds the baseline: fixed-size chunking, local MiniLM embeddings, NumPy vector search, and a pluggable generator. An offline extractive stub is used because no LLM is connected yet. The other three retrieval strategies (Phase 4) and the full evaluation (Phase 5) are not implemented.
+
+---
+
+## Phase 3 Baseline Pipeline
+
+```bash
+pip install -r requirements-dev.txt          # installs ragbench + numpy + sentence-transformers
+python scripts/build_index.py                # 972 chunks -> data/index/dense_fixed (downloads MiniLM once)
+python scripts/run_baseline.py               # runs 50 questions -> results/phase3_baseline/
+```
+
+Each answer includes citations (document, section, URL) restricted to retrieved chunks, plus per-stage latency. On the 40 answerable questions, the gold document is in the top 5 for all 40. Only 1 of 10 unanswerable questions is correctly abstained by the score-threshold stub. See `docs/phase3_baseline_pipeline.md` for configuration, results and limitations.
 
 ---
 
@@ -101,7 +113,7 @@ Running this command is completely deterministic and reproduces the exact datase
 
 ### Running Verification Tests
 
-Run the automated test suite verifying dataset integrity, required fields, unique IDs, SHA-256 hashes, heading structures, and package imports:
+Run the automated test suite verifying dataset integrity, required fields, unique IDs, SHA-256 hashes, heading structures, package imports, benchmark questions, and the baseline pipeline:
 
 ```bash
 python -m pytest
