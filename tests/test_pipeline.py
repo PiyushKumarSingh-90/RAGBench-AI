@@ -132,6 +132,10 @@ def test_parse_answer_maps_markers_and_ignores_out_of_range():
     ctx = pipe.store.search(pipe.embedder.embed(["alpha"])[0], k=2)
     ans = parse_answer("Alpha is first [1][1][7].", ctx)
     assert ans.cited_chunk_ids == [ctx[0].chunk.chunk_id]
+    wide = parse_answer("UTF-8 by default【2】 and grid [1, 10, 100].", ctx)
+    assert wide.cited_chunk_ids == [ctx[1].chunk.chunk_id]
+    lines = parse_answer("Ports【2†L1-L4】【1†L9-L12】.", ctx)
+    assert lines.cited_chunk_ids == [ctx[1].chunk.chunk_id, ctx[0].chunk.chunk_id]
     assert parse_answer(ABSTAIN_TEXT, ctx).abstained
     prompt = build_prompt("q?", ctx)
     assert "[1]" in prompt and "[2]" in prompt and ABSTAIN_TEXT in prompt

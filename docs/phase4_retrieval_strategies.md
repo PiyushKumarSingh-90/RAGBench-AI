@@ -98,3 +98,82 @@ These come with a strong caveat: **with 40 answerable questions, one question eq
 - There is one run per strategy. Retrieval is deterministic for a fixed index and model versions (stable sorting, no sampling). Latencies vary between runs and machines.
 - The settings (chunk size, overlap, candidates = 20, RRF k = 60, top-k = 5, threshold 0.35) are fixed defaults and were not tuned on the benchmark.
 - Versions: numpy 2.4.6, sentence-transformers 6.2.0, torch 2.15.0, transformers 5.22.1; models `sentence-transformers/all-MiniLM-L6-v2` and `cross-encoder/ms-marco-MiniLM-L6-v2` (downloaded from Hugging Face on first use, revision not pinned).
+
+## 6. LLM generator (Claude)
+
+Added after Phase 4 review, so that answer quality and abstention can be measured.
+
+| Item | Value |
+|---|---|
+| Module | `src/ragbench/llm.py` (`ClaudeGenerator`) |
+| SDK | `anthropic` 2.5.0 (Messages API, `client.messages.create`) |
+| Default model | `claude-haiku-5-5` (`--model` to change) |
+| Effort | `medium` (`--effort` to change); adaptive thinking (model default), no sampling parameters |
+| Credentials | resolved by the SDK from `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, or an `ant auth login` profile; nothing stored in the repo |
+
+How it works:
+
+- **Prompt.** A fixed system prompt (`generation.SYSTEM_PROMPT`) says to use only the numbered passages, cite them as `[n]`, and reply with the exact abstention sentence when the passages are insufficient. The user message holds the numbered passages (title, section, URL, text) and the question.
+- **Citations.** `parse_answer` maps `[n]` to chunk IDs and ignores numbers outside the passage list. The pipeline then drops any citation to a chunk that was not retrieved.
+- **Abstention.** The model decides; the retrieval-score threshold used by the extractive stub is **not** applied.
+- **Refusals.** A `stop_reason: "refusal"` is recorded in `generator_meta` (with its category) and counted in the summary, not raised. No server-side fallback is available for Haiku.
+- **Recorded per question.** `generator_meta` holds the model, stop reason, request ID, and input/output tokens. Summaries add token totals and refusals.
+
+Run (writes `results/phase4_claude/`):
+
+```bash
+export ANTHROPIC_API_KEY=...        # or: ant auth login
+python scripts/run_strategies.py --generator claude
+```
+
+**Status: not yet run.** No Anthropic credentials were available in the development environment. The integration is covered by 4 tests using a fake client, and a live call fails cleanly with the SDK's authentication error.
+
+## 7. LLM generator (Gemini)
+
+| Item | Value |
+|---|---|
+| Class | `GeminiGenerator` in `src/ragbench/llm.py` |
+| SDK | `google-genai` 2.34.0 (`client.models.generate_content`) |
+| Default model | `gemini-flash-latest` (an alias; the exact version used is recorded per answer) |
+| Settings | temperature 0, `max_output_tokens` 2048, same system prompt and citation contract as Claude |
+| Credentials | `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) environment variable; nothing stored in the repo |
+
+Gemini 1.5 Flash and 2.0 Flash are both retired (the API returned 404 for `gemini-2.0-flash` on 2026-11-05), so the default is the `gemini-flash-latest` alias. Because an alias can change over time, the resolved model version is recorded per answer in `generator_meta.model`; pin a specific model with `--model` for exact reproducibility.
+
+Blocked or empty responses (safety finish reasons or a prompt block) are recorded as refusals and counted, not raised.
+
+```bash
+export GEMINI_API_KEY=...
+python scripts/run_strategies.py --generator gemini     # -> results/phase4_gemini/
+```
+
+**Status: not yet run.** Covered by 2 tests using a fake client.
+
+## 8. LLM generator (Groq)
+
+| Item | Value |
+|---|---|
+| Class | `GroqGenerator` in `src/ragbench/llm.py` |
+| SDK | `groq` 1.7.0 (`client.chat.completions.create`) |
+| Default model | `openai/gpt-oss-120b` (`--model` to change). `llama-3.3-70b-versatile` returned 404 for the project key on 2026-11-05 |
+| Settings | temperature 0, `max_tokens` 8192 (room for reasoning tokens), same system prompt and citation contract; an empty answer (e.g. `finish_reason: length`) is recorded as `empty_answer`, not as a refusal |
+| Retries | 429 and 5xx retried with exponential backoff (5 retries, up to about 60 s), printed to the console; other errors raise immediately |
+| Credentials | `GROQ_API_KEY` environment variable; nothing stored in the repo |
+
+```bash
+export GROQ_API_KEY=...
+python scripts/run_strategies.py --generator groq      # -> results/phase4_groq/
+```
+
+**Status: partial run (2026-11-05), `openai/gpt-oss-120b`.** `dense_fixed` and `dense_semantic` completed. The run then hit Groq's free-tier limit of 200,000 tokens per day during `hybrid`; `hybrid` and `rerank` are pending. The Gemini run did not complete: `gemini-flash-latest` returned 503 (high demand) on every retry.
+
+| Strategy | Answerable abstained | Unanswerable abstained | Answers citing a gold document | Refusals | Input / output tokens | Median generation ms |
+|---|---:|---:|---:|---:|---:|---:|
+| dense_fixed | 0/40 | 10/10 | 40/40 | 0 | 91,546 / 13,115 | 16,450 |
+| dense_semantic | 1/40 | 10/10 | 38/39 | 0 | 62,308 / 12,004 | 8,363 |
+
+Generation latency is dominated by free-tier rate-limit waits and does not reflect model speed.
+
+Citation parsing was extended after the run, because gpt-oss writes markers as `【n】` and `【n†L1-L4】`. Saved runs were corrected offline with `scripts/reparse_citations.py` (no new API calls); answers with no recognised citation went from 15 to 0 on `dense_fixed`.
+
+The runner now saves each answer as it arrives (`run.partial.jsonl`), skips strategies already completed for the same generator, and resumes after a failure such as an exhausted quota. To finish the remaining strategies, rerun the same command; `hybrid` and `rerank` together need roughly 200k tokens, so this may take two days on the free tier.

@@ -45,6 +45,7 @@ class PipelineResult:
             "question": self.question,
             "answer": self.answer.text,
             "abstained": self.answer.abstained,
+            "generator_meta": self.answer.meta,
             "confidence": round(self.confidence, 6),
             "citations": self.citations,
             "dropped_citations": self.dropped_citations,

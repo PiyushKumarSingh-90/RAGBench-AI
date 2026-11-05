@@ -1,9 +1,9 @@
 """Answer generation.
 
-`Generator` is the interface a hosted LLM provider will implement later.
-`build_prompt` / `parse_answer` define the grounded-answer contract such a
-provider must follow: answer only from the numbered context, cite chunks as
-[n], or reply with ABSTAIN_TEXT.
+`Generator` is the interface every answer generator implements.
+`SYSTEM_PROMPT` / `build_user_message` / `parse_answer` define the grounded-answer
+contract an LLM must follow: answer only from the numbered context, cite chunks
+as [n], or reply with ABSTAIN_TEXT. `ragbench.llm.ClaudeGenerator` implements it.
 
 `ExtractiveGenerator` is a deterministic offline stand-in that needs no API key.
 It is NOT an LLM: it selects the sentences from the retrieved context that
@@ -20,17 +20,22 @@ from ragbench.vectorstore import SearchResult
 
 ABSTAIN_TEXT = "The available documentation does not contain the answer to this question."
 
-PROMPT_TEMPLATE = """You answer questions about technical documentation.
-Use ONLY the numbered context passages below. Do not use outside knowledge.
-Cite every claim with the passage number in square brackets, e.g. [1] or [2][3].
-If the passages do not contain the answer, reply exactly:
-{abstain}
+SYSTEM_PROMPT = f"""You answer questions about technical documentation for an evaluation \
+benchmark, so faithfulness to the provided passages matters more than helpfulness.
 
-Context:
+Use only the numbered context passages in the user message; do not add facts from \
+your own knowledge, even if you are confident they are true. Cite the passage number \
+in square brackets after each claim it supports, e.g. [1] or [2][3]. Answer concisely \
+in plain prose.
+
+If the passages do not contain enough information to answer, reply with exactly this \
+sentence and nothing else:
+{ABSTAIN_TEXT}"""
+
+USER_TEMPLATE = """Context:
 {context}
 
-Question: {question}
-Answer:"""
+Question: {question}"""
 
 STOPWORDS = frozenset(
     "a an and are as at be by can do does for from how i if in is it of on or "
@@ -43,6 +48,7 @@ class GeneratedAnswer:
     text: str
     cited_chunk_ids: list[str] = field(default_factory=list)
     abstained: bool = False
+    meta: dict = field(default_factory=dict)
 
 
 class Generator(Protocol):
@@ -53,27 +59,33 @@ class Generator(Protocol):
     ) -> GeneratedAnswer: ...
 
 
-def build_prompt(question: str, contexts: list[SearchResult]) -> str:
+def build_user_message(question: str, contexts: list[SearchResult]) -> str:
     blocks = []
     for i, r in enumerate(contexts, 1):
         c = r.chunk
         blocks.append(f"[{i}] {c.document_title} — {c.section_heading} ({c.source_url})\n{c.text}")
-    return PROMPT_TEMPLATE.format(
-        abstain=ABSTAIN_TEXT, context="\n\n".join(blocks), question=question
-    )
+    return USER_TEMPLATE.format(context="\n\n".join(blocks), question=question)
+
+
+def build_prompt(question: str, contexts: list[SearchResult]) -> str:
+    """System prompt and user message as one string (for providers without roles)."""
+    return f"{SYSTEM_PROMPT}\n\n{build_user_message(question, contexts)}"
 
 
 def parse_answer(raw: str, contexts: list[SearchResult]) -> GeneratedAnswer:
     """Turn raw LLM output into a GeneratedAnswer, mapping [n] markers to chunk IDs.
 
     Markers outside 1..len(contexts) are ignored, so a model cannot cite a passage
-    it was not given.
+    it was not given. Comma lists such as [1, 10, 100] are not citations (they occur
+    in quoted code) and are ignored.
     """
     text = raw.strip()
     if ABSTAIN_TEXT.lower() in text.lower():
         return GeneratedAnswer(text=ABSTAIN_TEXT, abstained=True)
     ids: list[str] = []
-    for n in re.findall(r"\[(\d+)\]", text):
+    # Accept [n], and the full-width 【n】 / 【n†L5-L9】 forms gpt-oss models emit
+    # (only the passage number n is used).
+    for n in re.findall(r"[\[【](\d+)(?:†[^\]】]*)?[\]】]", text):
         i = int(n)
         if 1 <= i <= len(contexts):
             cid = contexts[i - 1].chunk.chunk_id

@@ -22,7 +22,7 @@ The framework will benchmark four distinct retrieval approaches:
 
 > **Status: Phase 4 — Retrieval Strategies (implemented, awaiting review)**
 >
-> Phase 1 (corpus), Phase 2 (50-question benchmark) and Phase 3 (baseline pipeline) are complete. Phase 4 adds all four retrieval strategies behind one pipeline. No LLM is connected yet (an offline extractive stub is used), and the full Phase 5 evaluation is not implemented.
+> Phase 1 (corpus), Phase 2 (50-question benchmark) and Phase 3 (baseline pipeline) are complete. Phase 4 adds all four retrieval strategies behind one pipeline, plus LLM answer generators for Claude, Gemini and Groq (`--generator claude|gemini|groq`). None has completed a benchmark run yet; each needs an API key in the environment. The default generator is still the offline extractive stub. The full Phase 5 evaluation is not implemented.
 
 ---
 
@@ -39,6 +39,15 @@ The framework will benchmark four distinct retrieval approaches:
 python scripts/build_index.py --chunking fixed
 python scripts/build_index.py --chunking semantic
 python scripts/run_strategies.py             # -> results/phase4/comparison.md
+
+export ANTHROPIC_API_KEY=...                 # or: ant auth login
+python scripts/run_strategies.py --generator claude   # claude-haiku-5-5 -> results/phase4_claude/
+
+export GEMINI_API_KEY=...
+python scripts/run_strategies.py --generator gemini   # gemini-flash-latest -> results/phase4_gemini/
+
+export GROQ_API_KEY=...
+python scripts/run_strategies.py --generator groq     # openai/gpt-oss-120b -> results/phase4_groq/
 ```
 
 Preliminary results: every strategy finds a gold document in the top 5 for all 40 answerable questions. Semantic chunking ranks it first most often (0.975). Hybrid finds a gold section for 40/40. Reranking adds about 175 ms per query without improving on hybrid. See `docs/phase4_retrieval_strategies.md` for the full table, misses, latency and caveats.

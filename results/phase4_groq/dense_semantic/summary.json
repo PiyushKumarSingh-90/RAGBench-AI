@@ -1,0 +1,33 @@
+{
+  "strategy": "dense_semantic",
+  "retriever": "dense_semantic",
+  "top_k": 5,
+  "num_answerable": 40,
+  "num_unanswerable": 10,
+  "doc_hit_at_1": 0.975,
+  "doc_hit_at_5": 1.0,
+  "doc_mrr_at_5": 0.981,
+  "section_hit_at_5": 0.875,
+  "multi_section_gold_doc_coverage": 1.0,
+  "section_hit_by_type": {
+    "conceptual": "9/10",
+    "direct_factual": "8/10",
+    "how_to": "8/10",
+    "multi_section": "10/10"
+  },
+  "answerable_abstained": 1,
+  "unanswerable_abstained": 10,
+  "dropped_citations_total": 0,
+  "refusals": 0,
+  "empty_answers": 0,
+  "input_tokens_total": 62308,
+  "output_tokens_total": 12004,
+  "latency_ms_median": {
+    "embedding": 101.259,
+    "retrieval": 0.255,
+    "retrieval_total": 101.657,
+    "generation": 8362.614,
+    "total": 8465.646
+  },
+  "generator": "groq(model=openai/gpt-oss-120b,temperature=0)"
+}

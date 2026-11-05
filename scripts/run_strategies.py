@@ -4,6 +4,9 @@
     python scripts/build_index.py --chunking semantic
     python scripts/run_strategies.py                  # all four
     python scripts/run_strategies.py --strategies hybrid rerank
+    python scripts/run_strategies.py --generator claude   # needs Anthropic credentials
+    python scripts/run_strategies.py --generator gemini   # needs GEMINI_API_KEY
+    python scripts/run_strategies.py --generator groq     # needs GROQ_API_KEY
 
 Outputs go to results/phase4/<strategy>/{run.jsonl,summary.json} plus
 results/phase4/comparison.{json,md}. The metrics here are *preliminary*
@@ -36,7 +39,16 @@ BENCHMARK = PROJECT_ROOT / "evaluation" / "datasets" / "benchmark_questions.json
 INDEX_ROOT = PROJECT_ROOT / "data" / "index"
 OUT_ROOT = PROJECT_ROOT / "results" / "phase4"
 STRATEGIES = ("dense_fixed", "dense_semantic", "hybrid", "rerank")
-STAGES = ("embedding", "retrieval", "bm25", "fusion", "rerank", "retrieval_total", "total")
+STAGES = (
+    "embedding",
+    "retrieval",
+    "bm25",
+    "fusion",
+    "rerank",
+    "retrieval_total",
+    "generation",
+    "total",
+)
 
 
 def load_embedder(store: NumpyVectorStore):
@@ -93,6 +105,10 @@ def summarise(name: str, retriever_name: str, rows: list[dict], top_k: int) -> d
         "answerable_abstained": sum(r["abstained"] for r in ans),
         "unanswerable_abstained": sum(r["abstained"] for r in unans),
         "dropped_citations_total": sum(len(r["dropped_citations"]) for r in rows),
+        "refusals": sum(r["generator_meta"].get("stop_reason") == "refusal" for r in rows),
+        "empty_answers": sum(bool(r["generator_meta"].get("empty_answer")) for r in rows),
+        "input_tokens_total": sum(r["generator_meta"].get("input_tokens", 0) for r in rows),
+        "output_tokens_total": sum(r["generator_meta"].get("output_tokens", 0) for r in rows),
         "latency_ms_median": {
             s: round(statistics.median(r["timings_ms"][s] for r in rows), 3)
             for s in STAGES
@@ -108,7 +124,17 @@ def main() -> None:
     p.add_argument("--candidates", type=int, default=20)
     p.add_argument("--rrf-k", type=int, default=60)
     p.add_argument("--reranker", default=DEFAULT_RERANKER)
-    p.add_argument("--out", type=Path, default=OUT_ROOT)
+    p.add_argument(
+        "--generator", choices=["extractive", "claude", "gemini", "groq"], default="extractive"
+    )
+    p.add_argument(
+        "--model",
+        default=None,
+        help="LLM model name (each generator has its own default)",
+    )
+    p.add_argument("--effort", default=None, help="Claude effort (default: medium)")
+    p.add_argument("--force", action="store_true", help="redo completed strategies")
+    p.add_argument("--out", type=Path, default=None, help="default: results/phase4[_claude]")
     a = p.parse_args()
 
     fixed_store = NumpyVectorStore.load(INDEX_ROOT / "dense_fixed")
@@ -137,34 +163,93 @@ def main() -> None:
             )
 
     questions = [json.loads(line) for line in BENCHMARK.open(encoding="utf-8") if line.strip()]
-    generator = ExtractiveGenerator(min_score=a.min_score)
-    summaries = []
+    if a.generator == "claude":
+        from ragbench.llm import DEFAULT_EFFORT, DEFAULT_MODEL, ClaudeGenerator
+
+        generator = ClaudeGenerator(a.model or DEFAULT_MODEL, a.effort or DEFAULT_EFFORT)
+    elif a.generator == "gemini":
+        from ragbench.llm import GEMINI_DEFAULT_MODEL, GeminiGenerator
+
+        generator = GeminiGenerator(a.model or GEMINI_DEFAULT_MODEL)
+    elif a.generator == "groq":
+        from ragbench.llm import GROQ_DEFAULT_MODEL, GroqGenerator
+
+        generator = GroqGenerator(a.model or GROQ_DEFAULT_MODEL)
+    else:
+        generator = ExtractiveGenerator(min_score=a.min_score)
+    llm = a.generator != "extractive"
+    a.out = a.out or (OUT_ROOT.with_name(f"phase4_{a.generator}") if llm else OUT_ROOT)
+    stopped = None
     for name in a.strategies:
-        pipe = RAGPipeline(retrievers[name], generator, top_k)
-        pipe.query("warm-up query")  # exclude one-off lazy initialisation from latency
+        out = a.out / name
+        out.mkdir(parents=True, exist_ok=True)
+        summary_path = out / "summary.json"
+        if not a.force and summary_path.exists():
+            prev = json.loads(summary_path.read_text(encoding="utf-8"))
+            if prev.get("generator") == generator.name:
+                print(f"{name}: already complete for {generator.name}; skipping (--force to redo)")
+                continue
+        # Resume: rows are appended to run.partial.jsonl as each question finishes.
+        partial = out / "run.partial.jsonl"
         rows = []
-        for q in questions:
-            res = pipe.query(q["question"]).to_dict()
-            rows.append(
-                {
+        if partial.exists() and not a.force:
+            rows = [json.loads(line) for line in partial.open(encoding="utf-8") if line.strip()]
+            if rows and rows[0].get("generator") != generator.name:
+                rows = []
+            if rows:
+                print(f"{name}: resuming after {len(rows)} saved questions")
+        done = {r["question_id"] for r in rows}
+        pipe = RAGPipeline(retrievers[name], generator, top_k)
+        pipe.retriever.retrieve("warm-up query", top_k)  # exclude lazy init from latency
+        with partial.open("w", encoding="utf-8") as f:
+            for r in rows:
+                f.write(json.dumps(r, ensure_ascii=False) + "\n")
+            for q in questions:
+                if q["question_id"] in done:
+                    continue
+                try:
+                    res = pipe.query(q["question"]).to_dict()
+                except Exception as e:  # e.g. daily quota exhausted: keep what we have
+                    stopped = f"{name} at {q['question_id']}: {type(e).__name__}: {e}"
+                    break
+                row = {
                     "question_id": q["question_id"],
                     "source_group": q["source_group"],
                     "question_type": q["question_type"],
                     "answerable_from_corpus": q["answerable_from_corpus"],
+                    "generator": generator.name,
                     **score_row(q, res),
                     **res,
                 }
-            )
-        out = a.out / name
-        out.mkdir(parents=True, exist_ok=True)
+                rows.append(row)
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+                f.flush()
+        if stopped:
+            print(f"\nSTOPPED ({len(rows)}/{len(questions)} saved for {name}). {stopped[:300]}")
+            print("Rerun the same command later to resume from here.")
+            break
+        order = {q["question_id"]: i for i, q in enumerate(questions)}
+        rows.sort(key=lambda r: order[r["question_id"]])
         with (out / "run.jsonl").open("w", encoding="utf-8") as f:
             for r in rows:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        partial.unlink()
         s = summarise(name, retrievers[name].name, rows, top_k)
         s["generator"] = generator.name
-        (out / "summary.json").write_text(json.dumps(s, indent=2) + "\n", encoding="utf-8")
-        summaries.append(s)
+        summary_path.write_text(json.dumps(s, indent=2) + "\n", encoding="utf-8")
         print(f"{name}: doc@1={s['doc_hit_at_1']} section@{top_k}={s[f'section_hit_at_{top_k}']}")
+
+    # The comparison covers every completed strategy in the output folder for this
+    # generator, so strategies can be run in separate sessions.
+    summaries = []
+    for name in STRATEGIES:
+        path = a.out / name / "summary.json"
+        if path.exists():
+            sm = json.loads(path.read_text(encoding="utf-8"))
+            if sm.get("generator") == generator.name:
+                summaries.append(sm)
+    if not summaries:
+        raise SystemExit(1 if stopped else 0)
 
     meta = {
         "embedding_model": fixed_store.meta["embedding_model"],
@@ -175,7 +260,8 @@ def main() -> None:
         "rrf_k": a.rrf_k,
         "reranker": a.reranker,
         "top_k": top_k,
-        "abstention_min_score": a.min_score,
+        "generator": generator.name,
+        "abstention_min_score": None if llm else a.min_score,
     }
     (a.out / "comparison.json").write_text(
         json.dumps({"config": meta, "strategies": summaries}, indent=2) + "\n", encoding="utf-8"
@@ -194,8 +280,24 @@ def main() -> None:
             f"{s['unanswerable_abstained']}/{s['num_unanswerable']} | "
             f"{s['latency_ms_median']['retrieval_total']:.1f} |"
         )
+    if llm:
+        lines += [
+            "",
+            "| Strategy | Answerable abstained | Unanswerable abstained | Refusals | "
+            "Input tokens | Output tokens | Median generation ms |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ]
+        for s in summaries:
+            lines.append(
+                f"| {s['strategy']} | {s['answerable_abstained']}/{s['num_answerable']} | "
+                f"{s['unanswerable_abstained']}/{s['num_unanswerable']} | {s['refusals']} | "
+                f"{s['input_tokens_total']} | {s['output_tokens_total']} | "
+                f"{s['latency_ms_median']['generation']:.0f} |"
+            )
     (a.out / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
+    if stopped:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
