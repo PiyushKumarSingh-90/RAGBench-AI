@@ -1,90 +1,227 @@
-# RAGBench — RAG Evaluation Framework
+# RAGBench — an evaluation framework for RAG retrieval strategies
 
-RAGBench is an evaluation framework designed to systematically compare and benchmark different Retrieval-Augmented Generation (RAG) retrieval strategies over technical documentation. By evaluating distinct retrieval and indexing pipelines against a curated ground-truth question dataset, RAGBench provides empirical insights into retrieval accuracy, synthesis quality, citation support, and latency trade-offs.
+RAGBench measures how the **retrieval strategy** of a Retrieval-Augmented Generation (RAG) system changes what it retrieves, what it answers, whether it can back its answers with citations, and how long it takes. It runs four strategies over the same documentation corpus and the same 50-question benchmark, and reports every number from an actual run.
 
-## Planned Retrieval Strategies
+**Why a framework, not another RAG chatbot.** A chatbot shows that one pipeline can answer questions. RAGBench answers a different question: *which retrieval design should you choose, and what do you trade off?* It holds everything else fixed (corpus, questions, prompt, generator, top-k) and varies only retrieval, then scores the results against verified evidence. The FastAPI backend and Streamlit dashboard exist to inspect and compare those results, not as the product itself.
 
-The framework will benchmark four distinct retrieval approaches:
+![Dashboard — evaluation results](docs/images/dashboard_evaluation.jpg)
 
-1. **Dense Retrieval with Fixed-Size Chunking:** Simple token-based chunking paired with vector similarity search.
-2. **Dense Retrieval with Semantic Chunking:** Adaptive chunking based on semantic boundaries paired with vector search.
-3. **Hybrid Retrieval (BM25 + Dense):** Combination of sparse lexical matching (BM25) and dense semantic vector embeddings.
-4. **Dense/Hybrid Retrieval with Reranking:** Initial candidate retrieval followed by a cross-encoder reranker.
+## Contents
 
-## Evaluation Dimensions
+- [Problem](#problem) · [Architecture](#architecture) · [The four strategies](#the-four-strategies)
+- [Corpus and benchmark](#corpus-and-benchmark) · [Evaluation method](#evaluation-method) · [Results](#results)
+- [Example questions and answers](#example-questions-and-answers) · [Setup](#setup) · [Running the demo](#running-the-demo)
+- [Environment variables](#environment-variables) · [Testing and CI](#testing-and-ci) · [Limitations](#limitations)
+- [Project status](#project-status) · [Phase 1 dataset, provenance and licences](#phase-1-documentation-dataset)
 
-- **Retrieval Quality:** Context recall, context precision, and hit rate at $k$.
-- **Answer Correctness:** Semantic accuracy against reference answers.
-- **Faithfulness & Citation Support:** Grounding of generated responses in retrieved context without hallucination.
-- **Latency:** End-to-end response time and stage-specific retrieval latency.
+## Problem
 
-## Development Status
+RAG answers are only as good as the passages retrieved. Teams choose between chunking schemes, dense vs. keyword search, fusion and reranking, usually by intuition. These choices affect accuracy, groundedness and latency in different directions, and the effects are rarely measured on the same data. RAGBench makes them measurable on a fixed, verifiable benchmark.
 
-> **Status: Phase 4 — Retrieval Strategies (implemented, awaiting review)**
->
-> Phase 1 (corpus), Phase 2 (50-question benchmark) and Phase 3 (baseline pipeline) are complete. Phase 4 adds all four retrieval strategies behind one pipeline, plus LLM answer generators for Claude, Gemini and Groq (`--generator claude|gemini|groq`). Groq (`openai/gpt-oss-120b`) has completed a run of all four strategies (`results/phase4_groq/`, summary in `docs/phase4_retrieval_strategies.md` §8); Claude and Gemini have not. Each generator needs an API key in the environment. The default generator is still the offline extractive stub. Phase 5 evaluates the Groq run offline (`python scripts/evaluate.py` -> `results/phase5/`; write-up in `docs/phase5_evaluation.md`). Phase 6 adds a FastAPI backend (`uvicorn api.main:app`) and a Streamlit dashboard (`streamlit run dashboard/app.py`); see `docs/phase6_application.md`. Phase 7 adds GitHub Actions: lint, dataset validation, tests and a retrieval regression check on every push and pull request, plus a manual full LLM evaluation (`docs/phase7_ci.md`).
+## Architecture
 
----
+```mermaid
+flowchart LR
+    subgraph Data
+        R[Raw docs<br/>Python · scikit-learn · Docker · FastAPI · AWS] --> P[prepare_docs.py<br/>65 documents]
+        P --> CF[Fixed chunks<br/>200 words, 40 overlap]
+        P --> CS[Semantic chunks<br/>section + paragraph]
+    end
+    subgraph Retrieval
+        CF --> D1[dense_fixed<br/>MiniLM + cosine]
+        CS --> D2[dense_semantic<br/>MiniLM + cosine]
+        CF --> B[BM25]
+        D1 --> H[hybrid<br/>RRF fusion]
+        B --> H
+        H --> X[rerank<br/>cross-encoder over top 20]
+    end
+    subgraph Answering
+        D1 & D2 & H & X --> G[Generator<br/>Groq / Claude / Gemini / extractive]
+        G --> A[Answer + citations<br/>citations limited to retrieved chunks]
+    end
+    subgraph Evaluation
+        Q[50 benchmark questions<br/>verbatim evidence] --> E[evaluate.py<br/>retrieval · NLI faithfulness · citations · latency]
+        A --> E
+        E --> M[results/phase5<br/>metrics, report, charts]
+    end
+    M --> API[FastAPI] --> UI[Streamlit dashboard]
+    E -.-> CI[GitHub Actions<br/>regression check]
+```
 
-## Phase 4 Retrieval Strategies
+| Module | Responsibility |
+|---|---|
+| `src/ragbench/corpus.py`, `chunking.py` | Load the corpus; fixed and semantic chunking |
+| `embeddings.py`, `vectorstore.py` | MiniLM embeddings; exact NumPy cosine search |
+| `retrieval.py` | Dense, BM25, Reciprocal Rank Fusion, cross-encoder reranking |
+| `generation.py`, `llm.py` | Prompt and citation contract; extractive, Groq, Gemini, Claude generators |
+| `pipeline.py` | Retriever → generator, citation guarding, per-stage timings |
+| `evaluation.py` | Phase 5 metrics |
+| `service.py`, `api/`, `dashboard/` | Application layer |
 
-| # | Strategy | How it retrieves |
-|---|---|---|
-| 1 | `dense_fixed` | MiniLM embeddings over 200-word chunks with 40-word overlap |
-| 2 | `dense_semantic` | MiniLM over section + paragraph chunks (no chunk crosses a heading) |
-| 3 | `hybrid` | BM25 + dense, fused with Reciprocal Rank Fusion (k = 60) |
-| 4 | `rerank` | Hybrid top 20, reranked by `cross-encoder/ms-marco-MiniLM-L6-v2` |
+## The four strategies
+
+| Strategy | Chunks | How it retrieves | Why include it |
+|---|---|---|---|
+| `dense_fixed` | 972 fixed 200-word chunks, 40-word overlap | `all-MiniLM-L6-v2` embeddings, cosine similarity | The standard baseline |
+| `dense_semantic` | 1,268 chunks that never cross a heading (≤ 200 words) | Same embeddings | Tests whether respecting document structure helps |
+| `hybrid` | Fixed chunks | BM25 (k1 1.5, b 0.75) + dense, top 20 each, fused with Reciprocal Rank Fusion (k 60) | Recovers exact terms (API names, flags) that embeddings blur |
+| `rerank` | Fixed chunks | Hybrid top 20 re-scored by `cross-encoder/ms-marco-MiniLM-L6-v2` | Tests whether a slower, more precise scorer improves the order |
+
+All strategies return the top 5 passages to the same generator with the same prompt. The prompt requires citations as passage numbers and an exact abstention sentence when the passages do not contain the answer. Citations to passages that were not retrieved are dropped.
+
+## Corpus and benchmark
+
+- **Corpus:** 65 official documentation pages (152,638 words) from Python, scikit-learn, Docker, FastAPI and AWS (IAM, S3, EC2, Lambda), converted to Markdown. Details, provenance and licences are [below](#phase-1-documentation-dataset).
+- **Benchmark:** 50 hand-verified questions, 10 per source, 2 each of direct factual, conceptual, how-to, multi-section and unanswerable (`evaluation/datasets/benchmark_questions.jsonl`). Every answerable question records the document, section, URL and a **verbatim evidence excerpt**; unanswerable questions were checked against all 65 documents. See [docs/phase2_benchmark_questions.md](docs/phase2_benchmark_questions.md).
+
+## Evaluation method
+
+Full definitions: [docs/phase5_evaluation.md](docs/phase5_evaluation.md). In short:
+
+| Dimension | Metrics |
+|---|---|
+| Retrieval | Context recall (share of evidence text retrieved), context precision, MAP, Hit@1/3/5 (a retrieved chunk contains the evidence) |
+| Answer correctness | Fact coverage (expected-answer sentences entailed by the answer, NLI), token F1, semantic similarity |
+| Faithfulness | Share of answer claims entailed by a retrieved passage (NLI) |
+| Citation support | Share of cited claims entailed by the passages they cite |
+| Abstention | Unanswerable questions declined; answerable questions wrongly declined |
+| Latency | Median and p95 per stage: embedding, BM25, fusion, reranking, generation, total |
+
+Grading is offline and repeatable: `cross-encoder/nli-deberta-v3-base` for entailment and MiniLM for similarity. Answers were generated by Groq `openai/gpt-oss-120b` at temperature 0.
+
+## Results
+
+From `results/phase5/` (Groq run, 40 answerable + 10 unanswerable questions, top 5):
+
+| Strategy | Context recall | Hit@1 | Hit@5 | MAP | Faithfulness* | Citation support* | Fact coverage | Unanswerable declined | Retrieval ms (median) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| dense_fixed | 0.820 | 0.625 | 0.850 | 0.670 | 0.152 | 0.118 | 0.383 | 10/10 | 97 |
+| dense_semantic | 0.775 | 0.475 | 0.825 | 0.593 | 0.274 | 0.219 | 0.438 | 10/10 | 101 |
+| hybrid | 0.919 | 0.675 | **1.000** | 0.775 | 0.171 | 0.175 | 0.417 | 10/10 | 104 |
+| rerank | **0.921** | **0.750** | 0.975 | **0.823** | 0.184 | 0.158 | 0.421 | 10/10 | 268 |
+
+\*Strict lower bounds: the local NLI judge rejects correct claims that are reworded (a spot-check found about 3 of 10 "unsupported" claims were in fact supported). Use them to compare strategies, not as hallucination rates.
+
+![Quality metrics](results/phase5/charts/quality.png)
+![Retrieval latency](results/phase5/charts/retrieval_latency.png)
+
+**Findings** (50 questions, one model, one run; one or two questions' difference is within noise):
+
+- **`hybrid` is the best default.** It retrieved evidence for all 40 answerable questions at almost the cost of dense search (+7 ms). BM25 rescued the six questions dense retrieval missed, which hinge on exact names.
+- **`rerank` orders best but adds about 165 ms** and did not improve answers over `hybrid`. It can crowd out evidence: on AWS-MULTI-02 it filled four of five slots from one page. Use it when only one or two passages can be shown.
+- **`dense_semantic` is cheapest** (about 30% fewer input tokens) but retrieves worst at rank 1, and caused the only wrong abstention (DK-DIR-02, where no evidence was retrieved).
+- **Multi-section questions are hardest** for every strategy (context recall 0.67–0.78).
+- **Abstention is reliable with an LLM:** all strategies declined all 10 unanswerable questions. A retrieval-score threshold could not have done this, because some unanswerable questions score higher than answerable ones.
+
+Failure examples and the full analysis are in [docs/phase5_evaluation.md](docs/phase5_evaluation.md).
+
+## Example questions and answers
+
+Saved answers from the Groq run with the `hybrid` strategy (`results/phase4_groq/hybrid/run.jsonl`):
+
+**Direct factual — PY-DIR-01:** *By default, what encoding does Python assume for source files?*
+> Python assumes UTF‑8 encoding for source files by default【2】.
+
+Cited: *Using the Python Interpreter* (chunk covering "Source Code Encoding").
+
+**How-to — DK-HOW-02:** *How do you start a multi-container application defined in compose.yaml and then tear it down, including its volumes?*
+> To launch the stack, run Docker Compose in the directory that contains the `compose.yml` file: `docker compose up -d --build` … This creates the network and starts all services defined in the file [3]. When you're finished … `docker compose down --volumes`. The `down` command removes the containers and network, and the `--volumes` flag tells Compose to remove the associated volumes as well [2].
+
+Cited: *Multi-container applications — Run the containers*; *What is Docker Compose? — Start the application*.
+
+**Unanswerable — PY-UNANS-01:** *How does the Global Interpreter Lock (GIL) limit multithreaded performance in CPython, and how can it be disabled in a free-threaded build?*
+> The available documentation does not contain the answer to this question.
+
+![Dashboard — Ask tab](docs/images/dashboard_ask.jpg)
+
+*The screenshot uses the offline extractive generator, which quotes retrieved passages instead of writing an answer.*
+
+## Setup
+
+Requires Python 3.11+. Developed on an 8 GB Apple Silicon Mac; all models are small (MiniLM, MiniLM cross-encoder, DeBERTa-v3-base NLI) and run on CPU.
 
 ```bash
-python scripts/build_index.py --chunking fixed
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+python scripts/build_index.py --chunking fixed       # downloads MiniLM once
 python scripts/build_index.py --chunking semantic
-python scripts/run_strategies.py             # -> results/phase4/comparison.md
-
-export ANTHROPIC_API_KEY=...                 # or: ant auth login
-python scripts/run_strategies.py --generator claude   # claude-haiku-5-5 -> results/phase4_claude/
-
-export GEMINI_API_KEY=...
-python scripts/run_strategies.py --generator gemini   # gemini-flash-latest -> results/phase4_gemini/
-
-export GROQ_API_KEY=...
-python scripts/run_strategies.py --generator groq     # openai/gpt-oss-120b -> results/phase4_groq/
 ```
 
-Preliminary results: every strategy finds a gold document in the top 5 for all 40 answerable questions. Semantic chunking ranks it first most often (0.975). Hybrid finds a gold section for 40/40. Reranking adds about 175 ms per query without improving on hybrid. See `docs/phase4_retrieval_strategies.md` for the full table, misses, latency and caveats.
-
----
-
-## Phase 3 Baseline Pipeline
+Reproduce the results:
 
 ```bash
-pip install -r requirements-dev.txt          # installs ragbench + numpy + sentence-transformers
-python scripts/build_index.py                # 972 chunks -> data/index/dense_fixed (downloads MiniLM once)
-python scripts/run_baseline.py               # runs 50 questions -> results/phase3_baseline/
+python scripts/run_strategies.py                      # offline extractive -> results/phase4/
+python scripts/run_strategies.py --generator groq     # needs GROQ_API_KEY -> results/phase4_groq/ (resumable)
+python scripts/evaluate.py                            # offline grading -> results/phase5/
 ```
 
-Each answer includes citations (document, section, URL) restricted to retrieved chunks, plus per-stage latency. On the 40 answerable questions, the gold document is in the top 5 for all 40. Only 1 of 10 unanswerable questions is correctly abstained by the score-threshold stub. See `docs/phase3_baseline_pipeline.md` for configuration, results and limitations.
+## Running the demo
 
----
-
-## Phase 2 Benchmark Questions
-
-A manually verified set of **50 questions** (10 per source, with 2 each of: direct factual, conceptual, how-to, multi-section, unanswerable) in `evaluation/datasets/`. The five per-source files are `python_`, `scikit_learn_`, `docker_`, `fastapi_` and `aws_questions.jsonl`. `benchmark_questions.jsonl` is their exact concatenation.
-
-- Every answerable question cites exact evidence from `data/processed/documents.jsonl`: document ID, title, URL, section heading, and a verbatim excerpt.
-- Unanswerable questions were checked against all 65 documents and require the system to abstain.
-- Validate with:
+**Locally** (two terminals):
 
 ```bash
-python scripts/validate_questions.py evaluation/datasets/benchmark_questions.jsonl --combined
+uvicorn api.main:app                  # API, docs at http://127.0.0.1:8000/docs
+streamlit run dashboard/app.py        # dashboard at http://localhost:8501
 ```
 
-See `docs/phase2_benchmark_questions.md` for the schema, validation rules, verification method and known limitations.
+**With Docker** (untested: Docker was not available on the development machine):
+
+```bash
+cp .env.example .env                  # optional: add GROQ_API_KEY
+docker compose up --build             # API :8000, dashboard :8501
+```
+
+The dashboard has four tabs: **Ask** (one strategy, answer with sources, retrieved passages and timings), **Compare strategies** (same question, all four side by side), **Evaluation results** (Phase 5 metrics and latency) and **Benchmark explorer** (each benchmark question with its expected answer, evidence, saved answer and scores). See [docs/phase6_application.md](docs/phase6_application.md) and [docs/phase8_deployment.md](docs/phase8_deployment.md).
+
+## Environment variables
+
+| Variable | Used for | Required |
+|---|---|---|
+| `GROQ_API_KEY` | Groq generator (`openai/gpt-oss-120b`) | Only for Groq answers |
+| `GEMINI_API_KEY` | Gemini generator (`gemini-flash-latest`) | Only for Gemini |
+| `ANTHROPIC_API_KEY` | Claude generator (`claude-haiku-5-5`) | Only for Claude |
+| `RAGBENCH_API_URL` | Where the dashboard finds the API (default `http://127.0.0.1:8000`) | No |
+
+Keys are read from the environment only; nothing is stored in the repository. Without any key, the offline extractive generator is used. Set keys in the shell that runs the API (or in `.env` for Docker), never in code.
+
+## Testing and CI
+
+```bash
+ruff check . && ruff format --check .
+pytest -q                                             # 64 tests
+python scripts/run_strategies.py --out /tmp/rb --force && python scripts/check_regression.py /tmp/rb
+```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, dataset validation, tests and a retrieval regression check against `evaluation/regression_baseline.json` on every push and pull request, with no API keys. A separate manual workflow runs the full Groq evaluation. See [docs/phase7_ci.md](docs/phase7_ci.md).
+
+## Limitations
+
+- **Small benchmark:** 50 questions (40 answerable). One or two questions change a score by 0.025–0.05; there are no confidence intervals.
+- **One generator, one run:** results are for Groq `openai/gpt-oss-120b` at temperature 0. Claude and Gemini are integrated but have no completed run.
+- **Answer metrics are proxies:** the NLI judge is strict, token F1 rewards wording overlap. Absolute correctness would need an LLM judge or human grading.
+- **Relevance from verbatim evidence:** a passage that supports the answer with different wording counts as not relevant.
+- **Latency:** retrieval was measured on a laptop CPU; generation latency includes free-tier rate-limit waits.
+- **Corpus:** 65 pages of English documentation, not full API references; snapshot revisions are not all pinned (see below).
+- **Application:** no authentication or rate limiting; intended for local demos. The Docker setup is untested.
+
+## Project status
+
+All eight phases are implemented and documented; each was reviewed and approved before the next.
+
+| Phase | Document |
+|---|---|
+| 1 — Documentation collection | [docs/phase1_collection_notes.md](docs/phase1_collection_notes.md) |
+| 2 — 50-question benchmark | [docs/phase2_benchmark_questions.md](docs/phase2_benchmark_questions.md) |
+| 3 — Baseline pipeline | [docs/phase3_baseline_pipeline.md](docs/phase3_baseline_pipeline.md) |
+| 4 — Four strategies + LLM generators | [docs/phase4_retrieval_strategies.md](docs/phase4_retrieval_strategies.md) |
+| 5 — Evaluation | [docs/phase5_evaluation.md](docs/phase5_evaluation.md) |
+| 6 — API and dashboard | [docs/phase6_application.md](docs/phase6_application.md) |
+| 7 — CI and regression checks | [docs/phase7_ci.md](docs/phase7_ci.md) |
+| 8 — Documentation and deployment | [docs/phase8_deployment.md](docs/phase8_deployment.md) |
 
 ---
 
 ## Phase 1 Documentation Dataset
-
-Phase 1 collected and structured official technical documentation across five essential technologies to build a robust, multi-domain knowledge corpus.
 
 ### Why These Sources Were Selected
 
@@ -138,28 +275,6 @@ python scripts/prepare_docs.py
 ```
 
 Running this command is completely deterministic and reproduces the exact dataset and SHA-256 hashes.
-
-### Running Verification Tests
-
-Run the automated test suite verifying dataset integrity, required fields, unique IDs, SHA-256 hashes, heading structures, package imports, benchmark questions, and the baseline pipeline:
-
-```bash
-python -m pytest
-```
-
-Run code formatting and lint checks:
-
-```bash
-python -m ruff check .
-python -m ruff format --check .
-```
-
-### Git Repository Status
-
-- **Working Tree State:** All project files and directories are currently **untracked locally** (`??` in `git status`).
-- **Commits:** **0 commits** have been made.
-- **Remotes:** **No remote is configured** (no remote repository, no push performed).
-- **Ignored Paths:** `.venv/`, `.env`, and cache directories (`.pytest_cache/`, `.ruff_cache/`) are excluded by `.gitignore`.
 
 ### Dataset Limitations
 

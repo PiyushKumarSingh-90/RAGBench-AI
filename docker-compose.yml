@@ -1,0 +1,24 @@
+# docker compose up --build   ->  API http://localhost:8000/docs, dashboard http://localhost:8501
+# Optional LLM keys go in a local .env file (never committed), e.g. GROQ_API_KEY=...
+services:
+  api:
+    build: .
+    image: ragbench:latest
+    ports: ["8000:8000"]
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      retries: 12
+  dashboard:
+    image: ragbench:latest
+    depends_on:
+      api:
+        condition: service_healthy
+    ports: ["8501:8501"]
+    environment:
+      - RAGBENCH_API_URL=http://api:8000
+    command: ["streamlit", "run", "dashboard/app.py", "--server.address", "0.0.0.0", "--server.port", "8501", "--server.headless", "true"]
