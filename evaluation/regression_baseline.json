@@ -1,0 +1,41 @@
+{
+  "tolerance": 0.03,
+  "strategies": {
+    "dense_fixed": {
+      "doc_hit_at_1": 0.925,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.954,
+      "section_hit_at_5": 0.925,
+      "context_recall": 0.8203,
+      "evidence_hit_at_5": 0.85,
+      "retrieval_ms_median": 5.667
+    },
+    "dense_semantic": {
+      "doc_hit_at_1": 0.975,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.981,
+      "section_hit_at_5": 0.875,
+      "context_recall": 0.7749,
+      "evidence_hit_at_5": 0.825,
+      "retrieval_ms_median": 5.283
+    },
+    "hybrid": {
+      "doc_hit_at_1": 0.925,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.958,
+      "section_hit_at_5": 1.0,
+      "context_recall": 0.9186,
+      "evidence_hit_at_5": 1.0,
+      "retrieval_ms_median": 6.614
+    },
+    "rerank": {
+      "doc_hit_at_1": 0.925,
+      "doc_hit_at_5": 1.0,
+      "doc_mrr_at_5": 0.947,
+      "section_hit_at_5": 0.975,
+      "context_recall": 0.9211,
+      "evidence_hit_at_5": 0.975,
+      "retrieval_ms_median": 180.339
+    }
+  }
+}

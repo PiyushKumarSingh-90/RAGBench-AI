@@ -182,9 +182,7 @@ def answer_metrics(
         for ci in range(len(claims))
     ]
     cited = [(ci, c) for ci, c in enumerate(claims) if c.cited]
-    cite_ok = [
-        max(table.get((ci, p), 0.0) for p in c.cited) >= ENTAIL_THRESHOLD for ci, c in cited
-    ]
+    cite_ok = [max(table.get((ci, p), 0.0) for p in c.cited) >= ENTAIL_THRESHOLD for ci, c in cited]
     single = [table.get((ci, p), 0.0) >= ENTAIL_THRESHOLD for ci, c in cited for p in c.cited]
     out = {
         "claims": len(claims),

@@ -179,7 +179,13 @@ def report(metrics: dict, run_dir: Path, generator: str, nli_name: str) -> str:
     stages = [
         st
         for st in (
-            "embedding", "bm25", "fusion", "rerank", "retrieval_total", "generation", "total"
+            "embedding",
+            "bm25",
+            "fusion",
+            "rerank",
+            "retrieval_total",
+            "generation",
+            "total",
         )
         if any(st in metrics[k]["latency_ms"] for k in s)
     ]
@@ -192,9 +198,7 @@ def report(metrics: dict, run_dir: Path, generator: str, nli_name: str) -> str:
     ]
     for k in s:
         lat = metrics[k]["latency_ms"]
-        cells = [
-            f"{lat[st]['median']} / {lat[st]['p95']}" if st in lat else "–" for st in stages
-        ]
+        cells = [f"{lat[st]['median']} / {lat[st]['p95']}" if st in lat else "–" for st in stages]
         lines.append(f"| {k} | " + " | ".join(cells) + " |")
     types = sorted({t for k in s for t in metrics[k]["by_type"]})
     lines += [
@@ -269,15 +273,35 @@ def charts(metrics: dict, out: Path) -> None:
         for (key, label), c in zip(stages, stage_colors):
             if key in lat:
                 v = lat[key]["median"]
-                ax.barh(i, v, left=left, height=0.55, color=c, edgecolor="white", linewidth=2,
-                        label=label if i == len(strategies) - 1 or key == "rerank" else None)
+                ax.barh(
+                    i,
+                    v,
+                    left=left,
+                    height=0.55,
+                    color=c,
+                    edgecolor="white",
+                    linewidth=2,
+                    label=label if i == len(strategies) - 1 or key == "rerank" else None,
+                )
                 left += v
-        ax.text(left + 3, i, f"{lat['retrieval_total']['median']:.0f} ms", va="center",
-                fontsize=8, color=muted)
+        ax.text(
+            left + 3,
+            i,
+            f"{lat['retrieval_total']['median']:.0f} ms",
+            va="center",
+            fontsize=8,
+            color=muted,
+        )
     handles, labels = ax.get_legend_handles_labels()
     uniq = dict(zip(labels, handles))
-    ax.legend(uniq.values(), uniq.keys(), frameon=False, ncol=4, loc="lower center",
-              bbox_to_anchor=(0.5, -0.45))
+    ax.legend(
+        uniq.values(),
+        uniq.keys(),
+        frameon=False,
+        ncol=4,
+        loc="lower center",
+        bbox_to_anchor=(0.5, -0.45),
+    )
     ax.set_yticks(range(len(strategies)), strategies, color=ink)
     ax.invert_yaxis()
     ax.set_title("Median retrieval latency by stage (ms)", loc="left", color=ink, fontsize=11)
@@ -293,6 +317,7 @@ def main() -> None:
     p.add_argument("--out", type=Path, default=PROJECT_ROOT / "results" / "phase5")
     p.add_argument("--nli-model", default=DEFAULT_NLI_MODEL)
     a = p.parse_args()
+    a.run, a.out = a.run.resolve(), a.out.resolve()
 
     from sentence_transformers import SentenceTransformer
 
