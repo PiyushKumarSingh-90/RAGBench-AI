@@ -1,0 +1,36 @@
+{
+  "strategy": "rerank",
+  "retriever": "rerank(cross-encoder/ms-marco-MiniLM-L6-v2) over hybrid(bm25+dense,rrf_k=60,candidates=20), candidates=20",
+  "top_k": 5,
+  "num_answerable": 40,
+  "num_unanswerable": 10,
+  "doc_hit_at_1": 0.925,
+  "doc_hit_at_5": 1.0,
+  "doc_mrr_at_5": 0.947,
+  "section_hit_at_5": 0.975,
+  "multi_section_gold_doc_coverage": 0.857,
+  "section_hit_by_type": {
+    "conceptual": "10/10",
+    "direct_factual": "10/10",
+    "how_to": "10/10",
+    "multi_section": "9/10"
+  },
+  "answerable_abstained": 0,
+  "unanswerable_abstained": 10,
+  "dropped_citations_total": 0,
+  "refusals": 0,
+  "empty_answers": 0,
+  "input_tokens_total": 91107,
+  "output_tokens_total": 12028,
+  "latency_ms_median": {
+    "embedding": 66.343,
+    "retrieval": 0.116,
+    "bm25": 1.734,
+    "fusion": 0.034,
+    "rerank": 198.79,
+    "retrieval_total": 268.388,
+    "generation": 16025.972,
+    "total": 16295.147
+  },
+  "generator": "groq(model=openai/gpt-oss-120b,temperature=0)"
+}

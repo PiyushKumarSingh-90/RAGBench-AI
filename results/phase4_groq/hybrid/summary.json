@@ -1,0 +1,35 @@
+{
+  "strategy": "hybrid",
+  "retriever": "hybrid(bm25+dense,rrf_k=60,candidates=20)",
+  "top_k": 5,
+  "num_answerable": 40,
+  "num_unanswerable": 10,
+  "doc_hit_at_1": 0.925,
+  "doc_hit_at_5": 1.0,
+  "doc_mrr_at_5": 0.958,
+  "section_hit_at_5": 1.0,
+  "multi_section_gold_doc_coverage": 0.929,
+  "section_hit_by_type": {
+    "conceptual": "10/10",
+    "direct_factual": "10/10",
+    "how_to": "10/10",
+    "multi_section": "10/10"
+  },
+  "answerable_abstained": 0,
+  "unanswerable_abstained": 10,
+  "dropped_citations_total": 0,
+  "refusals": 0,
+  "empty_answers": 0,
+  "input_tokens_total": 90121,
+  "output_tokens_total": 12072,
+  "latency_ms_median": {
+    "embedding": 98.712,
+    "retrieval": 0.335,
+    "bm25": 2.479,
+    "fusion": 0.045,
+    "retrieval_total": 104.399,
+    "generation": 16129.726,
+    "total": 16298.85
+  },
+  "generator": "groq(model=openai/gpt-oss-120b,temperature=0)"
+}

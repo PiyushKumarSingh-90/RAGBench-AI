@@ -165,15 +165,40 @@ export GROQ_API_KEY=...
 python scripts/run_strategies.py --generator groq      # -> results/phase4_groq/
 ```
 
-**Status: partial run (2026-11-05), `openai/gpt-oss-120b`.** `dense_fixed` and `dense_semantic` completed. The run then hit Groq's free-tier limit of 200,000 tokens per day during `hybrid`; `hybrid` and `rerank` are pending. The Gemini run did not complete: `gemini-flash-latest` returned 503 (high demand) on every retry.
+**Status: complete (runs 2026-11-05 to 2026-11-06), `openai/gpt-oss-120b`.** All four strategies were answered for all 50 questions. Because of Groq's free-tier limit of 200,000 tokens per day, the run was resumed several times; each resume continued from the last saved answer. The Gemini run did not complete: `gemini-flash-latest` returned 503 (high demand) on every retry.
 
-| Strategy | Answerable abstained | Unanswerable abstained | Answers citing a gold document | Refusals | Input / output tokens | Median generation ms |
+Retrieval metrics (identical to the extractive run, since retrieval does not depend on the generator):
+
+| Strategy | Doc hit@1 | Doc hit@5 | Doc MRR@5 | Section hit@5 | Multi-section gold-doc coverage | Median retrieval ms |
 |---|---:|---:|---:|---:|---:|---:|
-| dense_fixed | 0/40 | 10/10 | 40/40 | 0 | 91,546 / 13,115 | 16,450 |
-| dense_semantic | 1/40 | 10/10 | 38/39 | 0 | 62,308 / 12,004 | 8,363 |
+| dense_fixed | 0.925 | 1.000 | 0.954 | 0.925 | 0.857 | 102.6 |
+| dense_semantic | 0.975 | 1.000 | 0.981 | 0.875 | 1.000 | 101.7 |
+| hybrid | 0.925 | 1.000 | 0.958 | 1.000 | 0.929 | 104.4 |
+| rerank | 0.925 | 1.000 | 0.947 | 0.975 | 0.857 | 268.4 |
 
-Generation latency is dominated by free-tier rate-limit waits and does not reflect model speed.
+Answers:
 
-Citation parsing was extended after the run, because gpt-oss writes markers as `【n】` and `【n†L1-L4】`. Saved runs were corrected offline with `scripts/reparse_citations.py` (no new API calls); answers with no recognised citation went from 15 to 0 on `dense_fixed`.
+| Strategy | Answerable abstained | Unanswerable abstained | Answers citing a gold document | Refusals | Empty answers | Input / output tokens | Median generation ms |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| dense_fixed | 0/40 | 10/10 | 40/40 | 0 | 0 | 91,546 / 13,115 | 16,450 |
+| dense_semantic | 1/40 | 10/10 | 38/39 | 0 | 0 | 62,308 / 12,004 | 8,363 |
+| hybrid | 0/40 | 10/10 | 40/40 | 0 | 0 | 90,121 / 12,072 | 16,130 |
+| rerank | 0/40 | 10/10 | 38/40 | 0 | 0 | 91,107 / 12,028 | 16,026 |
 
-The runner now saves each answer as it arrives (`run.partial.jsonl`), skips strategies already completed for the same generator, and resumes after a failure such as an exhausted quota. To finish the remaining strategies, rerun the same command; `hybrid` and `rerank` together need roughly 200k tokens, so this may take two days on the free tier.
+Every non-abstained answer has at least one citation, and no citation pointed outside the retrieved passages. The answers that cite no gold document:
+
+- **FA-DIR-01** (`dense_semantic`, `rerank`): cites `fastapi_tutorial_path_params` and `fastapi_index` instead of `fastapi_tutorial_first_steps`. Those pages also mention `/docs` and `/redoc`, so the answer may be supported; the gold list names only the first-steps page.
+- **AWS-MULTI-02** (`rerank`): cites only `aws_s3_access_control`. The reranker filled four of five slots with that document; the gold documents are `aws_s3_welcome` and `aws_iam_policies`.
+- **DK-DIR-02** (`dense_semantic`): wrongly declined (the one answerable abstention).
+
+Whether these answers are factually correct is not measured here; answer-quality grading belongs to Phase 5.
+
+Observations (50 questions, one model, one run; differences of one or two questions are within noise):
+
+- With an LLM generator, all four strategies decline all 10 unanswerable questions and almost never decline answerable ones.
+- `hybrid` is the only strategy with a perfect record on these measures: correct section in the top 5 for every question, and every answer cites a gold document.
+- `rerank` adds about 165 ms of retrieval per query and did not improve the answers over `hybrid`, its own candidate source.
+- `dense_semantic` uses about 30% fewer input tokens (smaller chunks) and was the fastest to generate, at the cost of one wrong abstention.
+- Generation latency is dominated by free-tier rate-limit waits and does not reflect model speed.
+
+Citation parsing was extended during the run, because gpt-oss writes markers as `【n】` and `【n†L1-L4】`. Early saved runs were corrected offline with `scripts/reparse_citations.py` (no new API calls); later runs used the fixed parser directly.

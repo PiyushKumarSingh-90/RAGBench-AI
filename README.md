@@ -22,7 +22,7 @@ The framework will benchmark four distinct retrieval approaches:
 
 > **Status: Phase 4 — Retrieval Strategies (implemented, awaiting review)**
 >
-> Phase 1 (corpus), Phase 2 (50-question benchmark) and Phase 3 (baseline pipeline) are complete. Phase 4 adds all four retrieval strategies behind one pipeline, plus LLM answer generators for Claude, Gemini and Groq (`--generator claude|gemini|groq`). None has completed a benchmark run yet; each needs an API key in the environment. The default generator is still the offline extractive stub. The full Phase 5 evaluation is not implemented.
+> Phase 1 (corpus), Phase 2 (50-question benchmark) and Phase 3 (baseline pipeline) are complete. Phase 4 adds all four retrieval strategies behind one pipeline, plus LLM answer generators for Claude, Gemini and Groq (`--generator claude|gemini|groq`). Groq (`openai/gpt-oss-120b`) has completed a run of all four strategies (`results/phase4_groq/`, summary in `docs/phase4_retrieval_strategies.md` §8); Claude and Gemini have not. Each generator needs an API key in the environment. The default generator is still the offline extractive stub. The full Phase 5 evaluation is not implemented.
 
 ---
 
