@@ -24,6 +24,11 @@ Keys live only in Render's environment settings, never in the repository.
 The Blueprint sync failed without an error message, so the services were created by hand
 (**New → Web Service**) with the same settings as `render.yaml`.
 
+- Dashboard: `https://ragbench-dashboard-c1ab.onrender.com` (Python 3, free, Singapore; start
+  command `streamlit run dashboard/app.py --server.port $PORT --server.address 0.0.0.0
+  --server.headless true`). The first deploy timed out because the start command was not set.
+  Checked in a browser: the page loads, Groq is offered, and a live `hybrid` question returned an
+  answer (about a minute on the first request while the API woke up).
 - API: `https://ragbench-api-83p9.onrender.com` (Docker, free, Singapore). The first build
   failed because the installed package looked for data next to itself; fixed with
   `RAGBENCH_ROOT=/app` in the Dockerfile.

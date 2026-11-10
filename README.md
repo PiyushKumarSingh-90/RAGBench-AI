@@ -4,6 +4,8 @@ RAGBench measures how the **retrieval strategy** of a Retrieval-Augmented Genera
 
 **Why a framework, not another RAG chatbot.** A chatbot shows that one pipeline can answer questions. RAGBench answers a different question: *which retrieval design should you choose, and what do you trade off?* It holds everything else fixed (corpus, questions, prompt, generator, top-k) and varies only retrieval, then scores the results against verified evidence. The FastAPI backend and Streamlit dashboard exist to inspect and compare those results, not as the product itself.
 
+**Live demo:** [ragbench-dashboard-c1ab.onrender.com](https://ragbench-dashboard-c1ab.onrender.com) (dashboard) · [API docs](https://ragbench-api-83p9.onrender.com/docs). Hosted on Render's free plan: the first visit after 15 idle minutes takes about a minute to wake up, and `rerank` is turned off there because it does not fit in 512 MB (its benchmark results are in the dashboard).
+
 ![Dashboard — evaluation results](docs/images/dashboard_evaluation.jpg)
 
 ## Contents
