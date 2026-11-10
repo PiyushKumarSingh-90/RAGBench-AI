@@ -10,7 +10,8 @@ ENV PIP_NO_CACHE_DIR=1 \
     TOKENIZERS_PARALLELISM=false \
     OMP_NUM_THREADS=1 \
     MKL_NUM_THREADS=1 \
-    MALLOC_ARENA_MAX=2
+    MALLOC_ARENA_MAX=2 \
+    RAGBENCH_ROOT=/app
 
 WORKDIR /app
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu

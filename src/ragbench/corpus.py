@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+# Repository root. Defaults to the source checkout; set RAGBENCH_ROOT when the
+# package is installed elsewhere (e.g. site-packages inside the Docker image).
+PROJECT_ROOT = Path(os.environ.get("RAGBENCH_ROOT") or Path(__file__).resolve().parents[2])
 DEFAULT_CORPUS_PATH = PROJECT_ROOT / "data" / "processed" / "documents.jsonl"
 
 
