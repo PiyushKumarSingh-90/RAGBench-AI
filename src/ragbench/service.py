@@ -32,6 +32,19 @@ STRATEGIES = {
     "hybrid": "BM25 + dense over fixed chunks, fused with Reciprocal Rank Fusion.",
     "rerank": "Hybrid top-20 re-scored by a cross-encoder.",
 }
+
+
+class StrategyDisabled(RuntimeError):
+    """The strategy is switched off on this server (RAGBENCH_DISABLED_STRATEGIES)."""
+
+
+def disabled_strategies() -> set[str]:
+    """Strategies turned off via RAGBENCH_DISABLED_STRATEGIES (comma-separated), e.g. `rerank`
+    on a host whose memory cannot fit the cross-encoder next to the embedding model."""
+    raw = os.environ.get("RAGBENCH_DISABLED_STRATEGIES", "")
+    return {s.strip() for s in raw.split(",") if s.strip() in STRATEGIES}
+
+
 GENERATOR_KEYS = {
     "extractive": None,
     "groq": "GROQ_API_KEY",
@@ -83,6 +96,11 @@ class RAGService:
     def retriever(self, strategy: str):
         if strategy not in STRATEGIES:
             raise KeyError(strategy)
+        if strategy in disabled_strategies():
+            raise StrategyDisabled(
+                f"'{strategy}' is turned off on this server (not enough memory on its hosting "
+                "plan). Its benchmark results are still available under /evaluation."
+            )
         with self._lock:
             if strategy not in self._retrievers:
                 dense = DenseRetriever(self.fixed_store, self.embedder, name="dense_fixed")

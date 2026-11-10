@@ -14,6 +14,8 @@ services:
     envVars:
       - key: GROQ_API_KEY
         sync: false # paste your key in the Render dashboard; never commit it
+      - key: RAGBENCH_DISABLED_STRATEGIES
+        value: rerank # the cross-encoder does not fit in 512 MB; remove on a 2 GB plan
 
   - type: web
     name: ragbench-dashboard

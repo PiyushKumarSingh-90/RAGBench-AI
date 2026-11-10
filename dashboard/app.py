@@ -47,7 +47,9 @@ def post(path: str, payload: dict):
 
 
 try:
-    strategies = get("/strategies")["strategies"]
+    _strategy_info = get("/strategies")
+    strategies = _strategy_info["strategies"]
+    disabled = _strategy_info.get("disabled", [])
     gens = get("/generators")["available"]
 except httpx.HTTPError as e:
     st.error(
@@ -110,10 +112,24 @@ ask, compare, evaluation, explore = st.tabs(
     ["Ask", "Compare strategies", "Evaluation results", "Benchmark explorer"]
 )
 
+live_strategies = [s for s in STRATEGY_ORDER if s not in disabled]
+off_note = (
+    f"{', '.join(disabled)} is turned off on this server (hosting memory limit); "
+    "its benchmark results are in the Evaluation results and Benchmark explorer tabs."
+    if disabled
+    else ""
+)
+
 with ask:
     strategy = st.radio(
-        "Retrieval strategy", STRATEGY_ORDER, index=2, horizontal=True, key="ask_strategy"
+        "Retrieval strategy",
+        live_strategies,
+        index=live_strategies.index("hybrid") if "hybrid" in live_strategies else 0,
+        horizontal=True,
+        key="ask_strategy",
     )
+    if off_note:
+        st.caption(off_note)
     q = st.text_input("Question", placeholder="How do I raise a 404 error in FastAPI?")
     if st.button("Ask", type="primary", disabled=not q):
         with st.spinner("Retrieving and answering…"):
@@ -130,7 +146,10 @@ with ask:
             show_result(res, expanded_context=True)
 
 with compare:
-    st.caption("Runs the same question through all four strategies with the same generator.")
+    st.caption(
+        "Runs the same question through every available strategy with the same generator. "
+        + off_note
+    )
     cq = st.text_input("Question", key="cmp_q", placeholder="What does docker compose down do?")
     if st.button("Compare", type="primary", disabled=not cq):
         with st.spinner("Running all four strategies…"):

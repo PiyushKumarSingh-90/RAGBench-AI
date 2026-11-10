@@ -11,9 +11,10 @@ from __future__ import annotations
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
-from ragbench.service import STRATEGIES, RAGService
+from ragbench.service import STRATEGIES, RAGService, StrategyDisabled, disabled_strategies
 
 Strategy = Literal["dense_fixed", "dense_semantic", "hybrid", "rerank"]
 GeneratorName = Literal["extractive", "groq", "gemini", "claude"]
@@ -41,12 +42,19 @@ def _run(question: str, strategy: str, generator: str, top_k: int) -> dict:
         return service.query(question, strategy, generator, top_k)
     except PermissionError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+    except StrategyDisabled as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
     except FileNotFoundError as e:
         raise HTTPException(
             status_code=503, detail=f"Index missing; run scripts/build_index.py ({e})"
         ) from e
     except Exception as e:  # upstream LLM errors (rate limit, auth) surface as 502
         raise HTTPException(status_code=502, detail=f"{type(e).__name__}: {e}") from e
+
+
+@app.get("/", include_in_schema=False)
+def root() -> RedirectResponse:
+    return RedirectResponse("/docs")
 
 
 @app.get("/health")
@@ -56,7 +64,11 @@ def health() -> dict:
 
 @app.get("/strategies")
 def strategies() -> dict:
-    return {"strategies": STRATEGIES, "default": "hybrid"}
+    return {
+        "strategies": STRATEGIES,
+        "default": "hybrid",
+        "disabled": sorted(disabled_strategies()),
+    }
 
 
 @app.get("/generators")
@@ -71,7 +83,10 @@ def query(req: QueryRequest) -> dict:
 
 @app.post("/compare")
 def compare(req: CompareRequest) -> dict:
-    return {s: _run(req.question, s, req.generator, req.top_k) for s in req.strategies}
+    off = disabled_strategies()
+    return {
+        s: _run(req.question, s, req.generator, req.top_k) for s in req.strategies if s not in off
+    }
 
 
 @app.get("/benchmark/questions")

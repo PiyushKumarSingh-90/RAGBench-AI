@@ -52,3 +52,17 @@ def test_saved_results_and_evaluation():
     assert len(rows) == 50 and rows[0]["evaluation"] is not None
     assert "hybrid" in client.get("/evaluation").json()["strategies"]
     assert len(client.get("/benchmark/questions").json()) == 50
+
+
+def test_disabled_strategy_returns_503_and_is_skipped_in_compare(monkeypatch):
+    monkeypatch.setenv("RAGBENCH_DISABLED_STRATEGIES", "rerank")
+    assert client.get("/strategies").json()["disabled"] == ["rerank"]
+    r = client.post("/query", json={"question": "What is Docker Compose?", "strategy": "rerank"})
+    assert r.status_code == 503 and "turned off" in r.json()["detail"]
+    body = client.post("/compare", json={"question": "What is Docker Compose?"}).json()
+    assert set(body) == {"dense_fixed", "dense_semantic", "hybrid"}
+
+
+def test_root_redirects_to_docs():
+    r = client.get("/", follow_redirects=False)
+    assert r.status_code in (302, 307) and r.headers["location"] == "/docs"

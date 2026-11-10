@@ -19,10 +19,29 @@ Two free web services, defined in `render.yaml`:
 
 Keys live only in Render's environment settings, never in the repository.
 
+## Live deployment (2026-11-10)
+
+The Blueprint sync failed without an error message, so the services were created by hand
+(**New → Web Service**) with the same settings as `render.yaml`.
+
+- API: `https://ragbench-api-83p9.onrender.com` (Docker, free, Singapore). The first build
+  failed because the installed package looked for data next to itself; fixed with
+  `RAGBENCH_ROOT=/app` in the Dockerfile.
+- Live checks: `/health` 200; `/generators` shows extractive and Groq available;
+  `dense_fixed` and `hybrid` answered correctly (top document
+  `fastapi_tutorial_handling_errors`). The first query took about 43 s (model load on
+  0.1 CPU); later ones about 1 s.
+- **`rerank` crashed the free instance** (HTTP 502, then the next query took 57 s because the
+  service had restarted): on Render's Linux instance the cross-encoder does not fit in 512 MB
+  next to the embedding model, although it measured 440 MB on macOS. It is therefore turned off
+  with `RAGBENCH_DISABLED_STRATEGIES=rerank`: the API answers 503 with an explanation, `/compare`
+  skips it, and the dashboard hides it and points to its saved benchmark results. Remove the
+  variable on a plan with 2 GB to enable it.
+
 ## What to expect on the free plan
 
 - **Sleep:** free services sleep after 15 minutes without traffic. The first visit then takes about a minute while both wake up; the dashboard shows "Cannot reach the RAGBench API… may be waking up" — wait and reload.
-- **Memory:** the free plan has 512 MB. Measured locally on 2026-11-10 with the deployment settings (one thread, offline models), the API used **440 MB** after all four strategies were loaded (487 MB without the settings). That is close to the limit: if Render's logs show the API restarting with "out of memory", switch `ragbench-api` to the Starter plan or higher (`plan:` in `render.yaml`, or in the service settings).
+- **Memory:** the free plan has 512 MB. Three strategies fit; `rerank` does not (see above).
 - **First query per strategy** loads its model, so it is slower (a few seconds); later queries are fast.
 - **Groq:** with a key set, anyone using the public dashboard can choose Groq and uses your daily free tokens (200k/day). Remove the key in Render to turn this off.
 
