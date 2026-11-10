@@ -24,15 +24,24 @@ st.set_page_config(page_title="RAGBench", layout="wide")
 
 @st.cache_data(ttl=60)
 def get(path: str):
-    r = httpx.get(f"{API}{path}", timeout=30)
+    # Long timeout: a sleeping free-tier API can take about a minute to wake up.
+    r = httpx.get(f"{API}{path}", timeout=120)
     r.raise_for_status()
     return r.json()
 
 
 def post(path: str, payload: dict):
-    r = httpx.post(f"{API}{path}", json=payload, timeout=300)
+    try:
+        r = httpx.post(f"{API}{path}", json=payload, timeout=300)
+    except httpx.HTTPError as e:
+        st.error(f"The API did not respond ({type(e).__name__}). It may be restarting; try again.")
+        return None
     if r.status_code >= 400:
-        st.error(f"API error {r.status_code}: {r.json().get('detail', r.text)}")
+        try:
+            detail = r.json().get("detail", r.text)
+        except ValueError:  # e.g. an HTML error page from the hosting proxy
+            detail = "the API is unavailable or restarting; try again in a minute"
+        st.error(f"API error {r.status_code}: {detail}")
         return None
     return r.json()
 
@@ -41,7 +50,11 @@ try:
     strategies = get("/strategies")["strategies"]
     gens = get("/generators")["available"]
 except httpx.HTTPError as e:
-    st.error(f"Cannot reach the RAGBench API at {API} ({e}). Start it with `uvicorn api.main:app`.")
+    st.error(
+        f"Cannot reach the RAGBench API at {API} ({type(e).__name__}). If it is hosted on a "
+        "free plan it may be waking up: wait a minute and reload. Locally, start it with "
+        "`uvicorn api.main:app`."
+    )
     st.stop()
 
 st.title("RAGBench")

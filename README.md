@@ -164,6 +164,8 @@ uvicorn api.main:app                  # API, docs at http://127.0.0.1:8000/docs
 streamlit run dashboard/app.py        # dashboard at http://localhost:8501
 ```
 
+**On Render (free):** `render.yaml` deploys the API and dashboard as two free services; see [docs/render_deployment.md](docs/render_deployment.md).
+
 **With Docker** (untested: Docker was not available on the development machine):
 
 ```bash

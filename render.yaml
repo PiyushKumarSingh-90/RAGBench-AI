@@ -1,0 +1,31 @@
+# Render Blueprint: two free web services.
+#   ragbench-api        FastAPI + models, built from the Dockerfile
+#   ragbench-dashboard  Streamlit only (no PyTorch), talks to the API over HTTPS
+# Setup steps: docs/render_deployment.md
+services:
+  - type: web
+    name: ragbench-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false # paste your key in the Render dashboard; never commit it
+
+  - type: web
+    name: ragbench-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r dashboard/requirements.txt
+    startCommand: >-
+      streamlit run dashboard/app.py --server.port $PORT --server.address 0.0.0.0
+      --server.headless true --browser.gatherUsageStats false
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: RAGBENCH_API_URL
+        sync: false # the API's public URL, e.g. https://ragbench-api.onrender.com
